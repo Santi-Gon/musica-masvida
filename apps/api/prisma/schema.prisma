@@ -110,3 +110,57 @@ model PushSubscription {
 
   @@map("push_subscriptions")
 }
+
+// ========================
+// Modelos para Prácticas 11 y 12 (Smartwatch)
+// ========================
+
+model User {
+  id             String             @id @default(uuid())
+  email          String             @unique
+  password       String             // Hash bcrypt
+  name           String
+  smartwatchPin  String?            // Hash bcrypt del PIN de 6 dígitos
+  pinExpiresAt   DateTime?
+  
+  medicalReminders  MedicalReminder[]
+  physicalActivities PhysicalActivity[]
+
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+
+  @@map("users")
+}
+
+model MedicalReminder {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  time        String   // Ej: "08:00 AM"
+  isActive    Boolean  @default(true)
+  
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("medical_reminders")
+}
+
+model PhysicalActivity {
+  id          String   @id @default(uuid())
+  type        String   // Ej: "Correr", "Nadar"
+  duration    Int      // En minutos
+  calories    Int      // Calorías quemadas
+  date        DateTime @default(now())
+
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("physical_activities")
+}
+
