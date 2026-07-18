@@ -1,0 +1,112 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ========================
+// Modelos - Música Más Vida
+// ========================
+
+model Event {
+  id          String   @id @default(uuid())
+  title       String
+  description String
+  date        DateTime
+  time        String
+  location    String
+  imageUrl    String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("events")
+}
+
+model Teacher {
+  id          String   @id @default(uuid())
+  name        String
+  bio         String
+  photoUrl    String?
+  instruments String[] // Array de instrumentos que enseña
+  email       String?
+  phone       String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("teachers")
+}
+
+model Instrument {
+  id          String             @id @default(uuid())
+  name        String
+  description String
+  category    InstrumentCategory
+  imageUrl    String?
+  isActive    Boolean            @default(true)
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+
+  @@map("instruments")
+}
+
+enum InstrumentCategory {
+  STRINGS
+  WIND
+  PERCUSSION
+  KEYBOARD
+  VOICE
+  OTHER
+}
+
+model PricingPlan {
+  id          String           @id @default(uuid())
+  name        String
+  description String
+  price       Float
+  currency    String           @default("MXN")
+  frequency   PricingFrequency
+  features    String[]         // Lista de beneficios
+  isPopular   Boolean          @default(false)
+  isActive    Boolean          @default(true)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  @@map("pricing_plans")
+}
+
+enum PricingFrequency {
+  WEEKLY
+  MONTHLY
+  QUARTERLY
+  YEARLY
+  ONE_TIME
+}
+
+model AdminUser {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String   // Hash bcrypt
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("admin_users")
+}
+
+// Suscripciones Web Push
+model PushSubscription {
+  id        String   @id @default(uuid())
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  createdAt DateTime @default(now())
+
+  @@map("push_subscriptions")
+}
