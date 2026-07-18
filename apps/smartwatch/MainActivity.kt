@@ -19,7 +19,7 @@ import java.net.URL
 class MainActivity : ComponentActivity() {
     
     // URL de tu API local (cambiar por IP local ej: http://192.168.1.X:3000 si usas dispositivo real)
-    private val API_URL = "http://10.0.2.2:3000/auth/smartwatch/login"
+    private val API_URL = "http://10.0.2.2:3000/api/v1/auth/smartwatch/login"
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

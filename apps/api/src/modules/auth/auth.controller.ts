@@ -42,8 +42,8 @@ export class AuthController {
   @Post('smartwatch/generate-pin')
   @UseGuards(JwtAuthGuard) // Solo usuarios logueados en la web pueden pedir PIN
   async generatePin(@Req() req: any) {
-    // req.user.userId (o sub) viene del JWT
-    return this.authService.generateSmartwatchPin(req.user.sub);
+    // req.user.id viene del JWT (configurado en jwt.strategy.ts)
+    return this.authService.generateSmartwatchPin(req.user.id);
   }
 
   @Post('smartwatch/login')
