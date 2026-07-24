@@ -1,12 +1,11 @@
-import { Module } from '@nestjs/common';
+import { Module, Global } from '@nestjs/common';
+import { NotificationsService } from './notifications.service';
+import { NotificationsController } from './notifications.controller';
 
+@Global()
 @Module({
-  providers: [],
-  exports: [],
+  controllers: [NotificationsController],
+  providers: [NotificationsService],
+  exports: [NotificationsService],
 })
 export class NotificationsModule {}
-
-// TODO: Implementar Web Push notifications
-// - Guardar suscripciones de usuarios
-// - Enviar notificaciones cuando se crea un evento
-// - Requiere claves VAPID (ver .env.example)

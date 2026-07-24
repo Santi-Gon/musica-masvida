@@ -58,3 +58,17 @@ export const teachersApi = {
 export const pricingApi = {
   getPublicPlans: () => request<PricingPlan[]>('/pricing'),
 };
+
+export const notificationsApi = {
+  subscribe: async (subscription: PushSubscription) => {
+    const res = await fetch(`${BASE}/notifications/subscribe`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(subscription),
+    });
+    if (!res.ok) throw new Error('Error saving subscription');
+    return res.json();
+  }
+};

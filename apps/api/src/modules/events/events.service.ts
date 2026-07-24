@@ -2,10 +2,14 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../common/prisma.service';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class EventsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly notificationsService: NotificationsService,
+  ) {}
 
   async findAll() {
     return this.prisma.event.findMany({
@@ -27,12 +31,22 @@ export class EventsService {
   }
 
   async create(dto: CreateEventDto) {
-    return this.prisma.event.create({
+    const event = await this.prisma.event.create({
       data: {
         ...dto,
         date: new Date(dto.date),
       },
     });
+
+    // Enviar notificación a todos de que hay un nuevo evento
+    // No esperamos con await para que no bloquee la respuesta HTTP
+    this.notificationsService.sendNotificationToAll(
+      '¡Nuevo Evento Programado!',
+      `${event.title} - ${new Date(event.date).toLocaleDateString('es-MX')}`,
+      '/eventos'
+    ).catch(err => console.error('Error sending event push notification', err));
+
+    return event;
   }
 
   async update(id: string, dto: UpdateEventDto) {

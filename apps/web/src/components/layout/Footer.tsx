@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { Music, Mail, Phone, MapPin, Globe, Camera, Video } from 'lucide-react';
+import { PushSubscriptionBtn } from '../ui/PushSubscriptionBtn';
 import './Footer.css';
 
 const FOOTER_LINKS = {
@@ -57,6 +58,9 @@ export function Footer() {
                   {social.icon}
                 </a>
               ))}
+            </div>
+            <div style={{ marginTop: '2rem', alignItems: 'flex-start', display: 'flex' }}>
+              <PushSubscriptionBtn />
             </div>
           </div>
 
