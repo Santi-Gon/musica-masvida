@@ -1,60 +1,28 @@
+import { useState, useEffect } from 'react';
 import { Check, Star, ArrowRight, CreditCard } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { pricingApi, type PricingPlan } from '../../services/api';
 import './Pricing.css';
 
-const PLANS = [
-  {
-    name: 'Básico',
-    price: 800,
-    frequency: 'mes',
-    description: 'Perfecto para principiantes que quieren explorar la música.',
-    features: [
-      '1 clase por semana (4 al mes)',
-      'Duración de 45 minutos',
-      'Material didáctico básico',
-      'Acceso a sala de práctica',
-      'Instrumento disponible en clase',
-    ],
-    isPopular: false,
-  },
-  {
-    name: 'Intermedio',
-    price: 1400,
-    frequency: 'mes',
-    description: 'Ideal para quienes quieren avanzar más rápido con más práctica.',
-    features: [
-      '2 clases por semana (8 al mes)',
-      'Duración de 60 minutos',
-      'Material didáctico completo',
-      'Acceso libre a sala de práctica',
-      'Instrumento disponible en clase',
-      'Participación en recitales',
-      'Grabación de una pieza al mes',
-    ],
-    isPopular: true,
-  },
-  {
-    name: 'Premium',
-    price: 2200,
-    frequency: 'mes',
-    description: 'Para músicos dedicados que buscan formación integral.',
-    features: [
-      '3 clases por semana (12 al mes)',
-      'Duración de 60 minutos',
-      'Material didáctico premium',
-      'Acceso 24/7 a sala de práctica',
-      'Instrumento disponible en clase',
-      'Participación en recitales y eventos',
-      'Grabación profesional incluida',
-      'Masterclass mensuales exclusivas',
-      'Certificación por nivel completado',
-    ],
-    isPopular: false,
-  },
-];
+const FREQ_LABELS: Record<string, string> = {
+  MONTHLY: 'mes',
+  WEEKLY: 'semana',
+  QUARTERLY: 'trimestre',
+  YEARLY: 'año',
+  ONE_TIME: 'pago único',
+};
 
 export function Pricing() {
   const navigate = useNavigate();
+  const [plans, setPlans] = useState<PricingPlan[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    pricingApi.getPublicPlans()
+      .then(data => setPlans(data))
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, []);
 
   return (
     <div className="pricing-page">
@@ -72,43 +40,55 @@ export function Pricing() {
 
       <section className="section">
         <div className="container">
-          <div className="pricing-grid">
-            {PLANS.map((plan, idx) => (
-              <div
-                key={idx}
-                className={`card-static pricing-card ${plan.isPopular ? 'pricing-card--popular' : ''}`}
-              >
-                {plan.isPopular && (
-                  <div className="pricing-card__badge">
-                    <Star size={14} /> Más Popular
-                  </div>
-                )}
-                <h3 className="pricing-card__name">{plan.name}</h3>
-                <p className="pricing-card__desc">{plan.description}</p>
-                <div className="pricing-card__price">
-                  <span className="pricing-card__currency">$</span>
-                  <span className="pricing-card__amount">{plan.price.toLocaleString()}</span>
-                  <span className="pricing-card__frequency">MXN / {plan.frequency}</span>
-                </div>
-                <ul className="pricing-card__features">
-                  {plan.features.map((feature, i) => (
-                    <li key={i}>
-                      <Check size={16} />
-                      <span>{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-                <button
-                  className={plan.isPopular ? 'btn-primary' : 'btn-secondary'}
-                  style={{ width: '100%', marginTop: 'auto' }}
-                  onClick={() => navigate('/login')}
+          {loading ? (
+            <div style={{ textAlign: 'center', padding: '4rem' }}>
+              <p style={{ color: 'var(--text-muted)' }}>Cargando planes...</p>
+            </div>
+          ) : plans.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '4rem', background: 'var(--bg-card)', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}>
+              <CreditCard size={48} style={{ opacity: 0.2, margin: '0 auto 1rem' }} />
+              <h3>Pronto publicaremos nuestros planes</h3>
+              <p style={{ color: 'var(--text-muted)' }}>Estamos diseñando las mejores opciones para tu aprendizaje.</p>
+            </div>
+          ) : (
+            <div className="pricing-grid">
+              {plans.map((plan) => (
+                <div
+                  key={plan.id}
+                  className={`card-static pricing-card ${plan.isPopular ? 'pricing-card--popular' : ''}`}
                 >
-                  Elegir Plan
-                  <ArrowRight size={16} />
-                </button>
-              </div>
-            ))}
-          </div>
+                  {plan.isPopular && (
+                    <div className="pricing-card__badge">
+                      <Star size={14} /> Más Popular
+                    </div>
+                  )}
+                  <h3 className="pricing-card__name">{plan.name}</h3>
+                  <p className="pricing-card__desc">{plan.description}</p>
+                  <div className="pricing-card__price">
+                    <span className="pricing-card__currency">$</span>
+                    <span className="pricing-card__amount">{plan.price.toLocaleString()}</span>
+                    <span className="pricing-card__frequency">{plan.currency} / {FREQ_LABELS[plan.frequency] || plan.frequency}</span>
+                  </div>
+                  <ul className="pricing-card__features">
+                    {plan.features.map((feature, i) => (
+                      <li key={i}>
+                        <Check size={16} />
+                        <span>{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <button
+                    className={plan.isPopular ? 'btn-primary' : 'btn-secondary'}
+                    style={{ width: '100%', marginTop: 'auto' }}
+                    onClick={() => navigate('/login')}
+                  >
+                    Elegir Plan
+                    <ArrowRight size={16} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
     </div>

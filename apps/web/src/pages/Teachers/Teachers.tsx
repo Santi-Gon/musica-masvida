@@ -1,52 +1,20 @@
-import { Users, Award, Music, Mail } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Users, Award, Music } from 'lucide-react';
+import { teachersApi, type Teacher } from '../../services/api';
 import './Teachers.css';
 
-const TEACHERS = [
-  {
-    name: 'Roberto Hernández',
-    specialty: 'Piano Clásico y Jazz',
-    bio: 'Graduado del Conservatorio Nacional con más de 15 años de experiencia como concertista y pedagogo. Especialista en técnica clásica y armonía jazz.',
-    instruments: ['Piano', 'Teclado'],
-    experience: '15 años',
-  },
-  {
-    name: 'Laura Martínez',
-    specialty: 'Guitarra y Composición',
-    bio: 'Guitarrista profesional con experiencia en giras internacionales. Enseña guitarra acústica, eléctrica y composición de canciones.',
-    instruments: ['Guitarra Acústica', 'Guitarra Eléctrica'],
-    experience: '12 años',
-  },
-  {
-    name: 'Diego Torres',
-    specialty: 'Batería y Percusión',
-    bio: 'Baterista de sesión con colaboraciones en más de 50 álbumes. Experto en rock, jazz, latin y música fusión.',
-    instruments: ['Batería', 'Percusión'],
-    experience: '10 años',
-  },
-  {
-    name: 'Sofía Ramírez',
-    specialty: 'Canto y Técnica Vocal',
-    bio: 'Soprano lírica con formación en el Berklee College of Music. Especialista en técnica vocal, interpretación y preparación escénica.',
-    instruments: ['Canto', 'Solfeo'],
-    experience: '8 años',
-  },
-  {
-    name: 'Miguel Ángel Ruiz',
-    specialty: 'Violín y Música de Cámara',
-    bio: 'Primer violín en la Orquesta Sinfónica Estatal durante 7 años. Imparte clases de violín clásico y ensamble.',
-    instruments: ['Violín', 'Viola'],
-    experience: '14 años',
-  },
-  {
-    name: 'Alejandra Vega',
-    specialty: 'Producción Musical',
-    bio: 'Productora musical certificada por Ableton. Especialista en producción electrónica, mezcla y masterización digital.',
-    instruments: ['Producción', 'Síntesis'],
-    experience: '6 años',
-  },
-];
 
 export function Teachers() {
+  const [teachers, setTeachers] = useState<Teacher[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    teachersApi.getPublicTeachers()
+      .then(data => setTeachers(data))
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, []);
+
   return (
     <div className="teachers-page">
       <section className="page-header">
@@ -63,28 +31,44 @@ export function Teachers() {
 
       <section className="section">
         <div className="container">
-          <div className="grid-3">
-            {TEACHERS.map((teacher, idx) => (
-              <div key={idx} className="card teacher-card">
-                <div className="teacher-card__avatar">
-                  {teacher.name.split(' ').map(n => n[0]).slice(0, 2).join('')}
-                </div>
-                <h3 className="teacher-card__name">{teacher.name}</h3>
-                <p className="teacher-card__specialty">{teacher.specialty}</p>
-                <p className="teacher-card__bio">{teacher.bio}</p>
-                <div className="teacher-card__meta">
-                  <div className="teacher-card__meta-item">
-                    <Award size={14} />
-                    <span>{teacher.experience}</span>
+          {loading ? (
+            <div style={{ textAlign: 'center', padding: '4rem' }}>
+              <p style={{ color: 'var(--text-muted)' }}>Cargando maestros...</p>
+            </div>
+          ) : teachers.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '4rem', background: 'var(--bg-card)', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}>
+              <Users size={48} style={{ opacity: 0.2, margin: '0 auto 1rem' }} />
+              <h3>Pronto conocerás a nuestro equipo</h3>
+              <p style={{ color: 'var(--text-muted)' }}>Estamos actualizando los perfiles de nuestros maestros.</p>
+            </div>
+          ) : (
+            <div className="grid-3">
+              {teachers.map((teacher) => (
+                <div key={teacher.id} className="card teacher-card">
+                  <div className="teacher-card__avatar">
+                    {teacher.photoUrl ? (
+                      <img src={teacher.photoUrl} alt={teacher.name} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} />
+                    ) : (
+                      teacher.name.split(' ').map(n => n[0]).slice(0, 2).join('')
+                    )}
                   </div>
-                  <div className="teacher-card__meta-item">
-                    <Music size={14} />
-                    <span>{teacher.instruments.join(', ')}</span>
+                  <h3 className="teacher-card__name">{teacher.name}</h3>
+                  <p className="teacher-card__specialty">{teacher.instruments.join(', ')}</p>
+                  <p className="teacher-card__bio">{teacher.bio}</p>
+                  <div className="teacher-card__meta">
+                    <div className="teacher-card__meta-item">
+                      <Award size={14} />
+                      <span>Profesional</span>
+                    </div>
+                    <div className="teacher-card__meta-item">
+                      <Music size={14} />
+                      <span>{teacher.instruments.length} Inst.</span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
     </div>
