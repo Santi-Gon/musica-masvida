@@ -1,0 +1,45 @@
+/* ============================================
+   Shared Page Styles + Instruments
+   ============================================ */
+
+.page-header {
+  padding: 4rem 0 2rem;
+  text-align: center;
+  background: linear-gradient(180deg, var(--color-bg-base) 0%, var(--color-bg-surface) 100%);
+}
+
+/* Instrument Detail Card */
+.instrument-detail-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+}
+
+.instrument-detail-card__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(135deg, var(--color-primary-glow), rgba(223, 158, 20, 0.06));
+  color: var(--color-primary);
+}
+
+.instrument-detail-card__levels {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.instrument-detail-card__level {
+  padding: 0.3rem 0.7rem;
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 500;
+  background-color: var(--color-bg-base);
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-border-light);
+}

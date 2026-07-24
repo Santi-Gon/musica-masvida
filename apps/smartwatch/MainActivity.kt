@@ -5,6 +5,8 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -76,6 +78,7 @@ fun WearApp(activity: MainActivity) {
             if (token == null) {
                 // Pantalla de Login por PIN
                 Column(
+                    modifier = Modifier.verticalScroll(rememberScrollState()).padding(16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
@@ -88,7 +91,7 @@ fun WearApp(activity: MainActivity) {
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     
-                    // Simple teclado numérico simulado (en Wear OS real se usaría un componente de teclado o scroll)
+                    // Teclado numérico
                     Row {
                         Button(onClick = { if (pin.length < 6) pin += "1" }) { Text("1") }
                         Spacer(modifier = Modifier.width(4.dp))
@@ -96,14 +99,30 @@ fun WearApp(activity: MainActivity) {
                         Spacer(modifier = Modifier.width(4.dp))
                         Button(onClick = { if (pin.length < 6) pin += "3" }) { Text("3") }
                     }
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Row {
+                        Button(onClick = { if (pin.length < 6) pin += "4" }) { Text("4") }
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Button(onClick = { if (pin.length < 6) pin += "5" }) { Text("5") }
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Button(onClick = { if (pin.length < 6) pin += "6" }) { Text("6") }
+                    }
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Row {
+                        Button(onClick = { if (pin.length < 6) pin += "7" }) { Text("7") }
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Button(onClick = { if (pin.length < 6) pin += "8" }) { Text("8") }
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Button(onClick = { if (pin.length < 6) pin += "9" }) { Text("9") }
+                    }
+                    Spacer(modifier = Modifier.height(4.dp))
                     Row {
                         Button(
-                            onClick = { 
-                                if (pin.length > 0) pin = pin.dropLast(1) 
-                            },
+                            onClick = { if (pin.isNotEmpty()) pin = pin.dropLast(1) },
                             colors = ButtonDefaults.secondaryButtonColors()
                         ) { Text("Del") }
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Button(onClick = { if (pin.length < 6) pin += "0" }) { Text("0") }
                         Spacer(modifier = Modifier.width(4.dp))
                         Button(
                             onClick = {
@@ -138,6 +157,7 @@ fun WearApp(activity: MainActivity) {
             } else {
                 // Pantalla Principal Protegida
                 Column(
+                    modifier = Modifier.verticalScroll(rememberScrollState()).padding(16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {

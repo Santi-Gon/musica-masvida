@@ -1,0 +1,71 @@
+/* ============================================
+   Banner Styles
+   ============================================ */
+
+.banner {
+  background: linear-gradient(135deg, var(--color-bg-dark) 0%, #1a2d42 100%);
+  color: #E2E8F0;
+  padding: 0.65rem 0;
+  position: relative;
+  z-index: 51;
+  animation: fadeInDown var(--transition-base) ease-out;
+}
+
+.banner__content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.banner__message {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.banner__message svg {
+  color: var(--color-primary);
+  flex-shrink: 0;
+}
+
+.banner__cta {
+  color: var(--color-primary);
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color var(--transition-fast);
+}
+
+.banner__cta:hover {
+  color: var(--color-primary-light);
+}
+
+.banner__close {
+  position: absolute;
+  right: 1rem;
+  background: none;
+  border: none;
+  color: #94A3B8;
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-fast);
+  display: flex;
+}
+
+.banner__close:hover {
+  color: #E2E8F0;
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+@media (max-width: 640px) {
+  .banner__message {
+    font-size: 0.8rem;
+    text-align: center;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+}

@@ -28,12 +28,9 @@ export function Login() {
         throw new Error(data.message || 'Credenciales inválidas');
       }
 
-      // Guardar token y redirigir
+      // Guardar token y redirigir al dashboard
       localStorage.setItem('accessToken', data.accessToken);
-      
-      // En un flujo real, aquí iría al dashboard del admin,
-      // pero por ahora volvemos al home
-      navigate('/');
+      navigate('/dashboard');
       
     } catch (err: any) {
       setError(err.message);
