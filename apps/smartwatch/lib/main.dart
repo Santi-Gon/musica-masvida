@@ -2,6 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+// URL de la API — configurable en tiempo de compilación con:
+//   flutter run --dart-define=API_BASE_URL=https://TU-API.railway.app/api/v1
+// Si no se especifica, usa el valor para el emulador local de Android Studio.
+const String kApiBase = String.fromEnvironment(
+  'API_BASE_URL',
+  defaultValue: 'http://10.0.2.2:3000/api/v1',
+);
+
 void main() {
   runApp(const SmartwatchApp());
 }
@@ -86,10 +94,6 @@ class _LoginScreenState extends State<LoginScreen> {
   String errorMessage = "";
   String? token;
 
-  // IMPORTANTE: En emulador Android Studio, 10.0.2.2 apunta a tu localhost.
-  // En un reloj físico por Wi-Fi, usa la IP local de tu computadora.
-  final String apiBase = "http://10.0.2.2:3000/api/v1";
-
   Future<void> login() async {
     if (pin.length != 6) return;
 
@@ -100,7 +104,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     try {
       final response = await http.post(
-        Uri.parse("$apiBase/auth/smartwatch/login"),
+        Uri.parse("$kApiBase/auth/smartwatch/login"),
         headers: {"Content-Type": "application/json"},
         body: jsonEncode({"pin": pin}),
       );
@@ -176,7 +180,7 @@ class _LoginScreenState extends State<LoginScreen> {
     if (token != null) {
       return DashboardScreen(
         token: token!,
-        apiBase: apiBase,
+        apiBase: kApiBase,
         onLogout: () {
           setState(() {
             token = null;
