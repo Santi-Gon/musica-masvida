@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 export const Dashboard = () => {
   const [pin, setPin] = useState<string | null>(null);
@@ -6,18 +6,18 @@ export const Dashboard = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [setupMessage, setSetupMessage] = useState<string | null>(null);
-  const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
+  const [token, setToken] = useState<string | null>(localStorage.getItem('accessToken'));
 
   // Para pruebas: configurar usuario mock
   const handleSetupUser = async () => {
     setLoading(true);
     try {
-      const res = await fetch('http://localhost:3000/api/v1/auth/setup-user', {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/api/v1/auth/setup-user`, {
         method: 'POST',
       });
       const data = await res.json();
       if (res.ok) {
-        localStorage.setItem('token', data.accessToken);
+        localStorage.setItem('accessToken', data.accessToken);
         setToken(data.accessToken);
         setSetupMessage(data.message);
       } else {
@@ -33,7 +33,7 @@ export const Dashboard = () => {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch('http://localhost:3000/api/v1/auth/smartwatch/generate-pin', {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/api/v1/auth/smartwatch/generate-pin`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`

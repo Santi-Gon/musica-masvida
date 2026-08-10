@@ -13,6 +13,12 @@ export class AuthController {
     return this.authService.login(loginDto);
   }
 
+  @Post('user/login')
+  @HttpCode(HttpStatus.OK)
+  async loginUser(@Body() loginDto: LoginDto) {
+    return this.authService.loginUser(loginDto);
+  }
+
   @Post('setup')
   @HttpCode(HttpStatus.CREATED)
   async setup() {
