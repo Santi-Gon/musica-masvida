@@ -18,6 +18,25 @@ export class EventsService {
     });
   }
 
+  // Próximos 3 eventos activos desde hoy — usado por el smartwatch
+  async findUpcoming() {
+    return this.prisma.event.findMany({
+      where: {
+        isActive: true,
+        date: { gte: new Date() },
+      },
+      orderBy: { date: 'asc' },
+      take: 3,
+      select: {
+        id: true,
+        title: true,
+        date: true,
+        time: true,
+        location: true,
+      },
+    });
+  }
+
   async findAllAdmin() {
     return this.prisma.event.findMany({
       orderBy: { createdAt: 'desc' },

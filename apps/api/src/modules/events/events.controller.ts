@@ -17,6 +17,12 @@ export class EventsController {
     return this.eventsService.findAll();
   }
 
+  // Próximos 3 eventos — usado por el smartwatch (debe ir ANTES de :id)
+  @Get('upcoming')
+  findUpcoming() {
+    return this.eventsService.findUpcoming();
+  }
+
   // Protegido — solo admins
   @Get('admin/all')
   @UseGuards(JwtAuthGuard)

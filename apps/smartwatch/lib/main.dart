@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:wear/wear.dart';
 
 void main() {
   runApp(const SmartwatchApp());
@@ -14,9 +13,10 @@ class SmartwatchApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Música Más Vida Wear',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         brightness: Brightness.dark,
-        primaryColor: Colors.purpleAccent,
+        primaryColor: const Color(0xFFDF9E14),
         scaffoldBackgroundColor: Colors.black,
         visualDensity: VisualDensity.compact,
       ),
@@ -30,14 +30,49 @@ class WatchScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return WatchShape(
-      builder: (context, shape, child) {
-        return const LoginScreen();
-      },
+    return const LoginScreen();
+  }
+}
+
+// ==============================
+// MODELO: Evento próximo
+// ==============================
+class UpcomingEvent {
+  final String id;
+  final String title;
+  final String date;
+  final String time;
+  final String location;
+
+  UpcomingEvent({
+    required this.id,
+    required this.title,
+    required this.date,
+    required this.time,
+    required this.location,
+  });
+
+  factory UpcomingEvent.fromJson(Map<String, dynamic> json) {
+    // La fecha viene en ISO 8601: "2026-08-15T00:00:00.000Z"
+    final rawDate = json['date'] as String;
+    final parsedDate = DateTime.tryParse(rawDate);
+    final formattedDate = parsedDate != null
+        ? '${parsedDate.day}/${parsedDate.month}/${parsedDate.year}'
+        : rawDate;
+
+    return UpcomingEvent(
+      id: json['id'] as String,
+      title: json['title'] as String,
+      date: formattedDate,
+      time: json['time'] as String,
+      location: json['location'] as String,
     );
   }
 }
 
+// ==============================
+// PANTALLA DE LOGIN (PIN)
+// ==============================
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -51,13 +86,13 @@ class _LoginScreenState extends State<LoginScreen> {
   String errorMessage = "";
   String? token;
 
-  // IMPORTANTE: Si usas el emulador de Android Studio, 10.0.2.2 apunta a tu localhost.
-  // Si corres en un reloj físico conectado por Wi-Fi/Bluetooth, pon la IP local de tu compu (Ej. 192.168.1.X)
-  final String apiUrl = "http://10.0.2.2:3000/api/v1/auth/smartwatch/login";
+  // IMPORTANTE: En emulador Android Studio, 10.0.2.2 apunta a tu localhost.
+  // En un reloj físico por Wi-Fi, usa la IP local de tu computadora.
+  final String apiBase = "http://10.0.2.2:3000/api/v1";
 
   Future<void> login() async {
     if (pin.length != 6) return;
-    
+
     setState(() {
       isLoading = true;
       errorMessage = "";
@@ -65,7 +100,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     try {
       final response = await http.post(
-        Uri.parse(apiUrl),
+        Uri.parse("$apiBase/auth/smartwatch/login"),
         headers: {"Content-Type": "application/json"},
         body: jsonEncode({"pin": pin}),
       );
@@ -73,7 +108,7 @@ class _LoginScreenState extends State<LoginScreen> {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         setState(() {
-          token = data['accessToken'];
+          token = data['accessToken'] as String;
         });
       } else {
         setState(() {
@@ -98,6 +133,8 @@ class _LoginScreenState extends State<LoginScreen> {
       setState(() {
         pin += num;
         errorMessage = "";
+        // Auto-login cuando se completan 6 dígitos
+        if (pin.length == 6) login();
       });
     }
   }
@@ -110,7 +147,7 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  Widget buildKey(String num, VoidCallback onTap, {Color color = Colors.grey}) {
+  Widget buildKey(String label, VoidCallback onTap, {Color color = Colors.grey}) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -122,8 +159,12 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
         alignment: Alignment.center,
         child: Text(
-          num,
-          style: const TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold),
+          label,
+          style: const TextStyle(
+            fontSize: 15,
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
     );
@@ -131,72 +172,66 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Si ya logueó, mostramos el Dashboard
+    // Si ya hay token, mostrar el Dashboard con datos reales
     if (token != null) {
-      return DashboardScreen(onLogout: () {
-        setState(() {
-          token = null;
-          pin = "";
-        });
-      });
+      return DashboardScreen(
+        token: token!,
+        apiBase: apiBase,
+        onLogout: () {
+          setState(() {
+            token = null;
+            pin = "";
+          });
+        },
+      );
     }
 
-    // Pantalla de Login (Teclado numérico)
     return Scaffold(
       body: Center(
         child: SingleChildScrollView(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Text("Ingresa PIN", style: TextStyle(fontSize: 12, color: Colors.white70)),
+              const Text(
+                "Ingresa PIN",
+                style: TextStyle(fontSize: 11, color: Colors.white70),
+              ),
               const SizedBox(height: 4),
               Text(
                 pin.isEmpty ? "------" : pin.padRight(6, '-'),
-                style: const TextStyle(fontSize: 24, letterSpacing: 4, color: Colors.cyanAccent, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  fontSize: 22,
+                  letterSpacing: 4,
+                  color: Color(0xFFDF9E14),
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 6),
               if (errorMessage.isNotEmpty)
                 Padding(
                   padding: const EdgeInsets.only(bottom: 4),
-                  child: Text(errorMessage, style: const TextStyle(fontSize: 10, color: Colors.redAccent)),
+                  child: Text(
+                    errorMessage,
+                    style: const TextStyle(fontSize: 9, color: Colors.redAccent),
+                  ),
                 ),
               if (isLoading)
-                const CircularProgressIndicator(strokeWidth: 2)
+                const SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: Color(0xFFDF9E14),
+                  ),
+                )
               else
                 Column(
                   children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        buildKey("1", () => appendNumber("1")),
-                        const SizedBox(width: 8),
-                        buildKey("2", () => appendNumber("2")),
-                        const SizedBox(width: 8),
-                        buildKey("3", () => appendNumber("3")),
-                      ],
-                    ),
+                    _buildRow(["1", "2", "3"]),
                     const SizedBox(height: 4),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        buildKey("4", () => appendNumber("4")),
-                        const SizedBox(width: 8),
-                        buildKey("5", () => appendNumber("5")),
-                        const SizedBox(width: 8),
-                        buildKey("6", () => appendNumber("6")),
-                      ],
-                    ),
+                    _buildRow(["4", "5", "6"]),
                     const SizedBox(height: 4),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        buildKey("7", () => appendNumber("7")),
-                        const SizedBox(width: 8),
-                        buildKey("8", () => appendNumber("8")),
-                        const SizedBox(width: 8),
-                        buildKey("9", () => appendNumber("9")),
-                      ],
-                    ),
+                    _buildRow(["7", "8", "9"]),
                     const SizedBox(height: 4),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -204,8 +239,6 @@ class _LoginScreenState extends State<LoginScreen> {
                         buildKey("C", deleteNumber, color: Colors.red),
                         const SizedBox(width: 8),
                         buildKey("0", () => appendNumber("0")),
-                        const SizedBox(width: 8),
-                        buildKey("OK", login, color: pin.length == 6 ? Colors.green : Colors.grey),
                       ],
                     ),
                   ],
@@ -216,62 +249,271 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
   }
+
+  Widget _buildRow(List<String> numbers) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: numbers
+          .map((n) => Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                child: buildKey(n, () => appendNumber(n)),
+              ))
+          .toList(),
+    );
+  }
 }
 
-class DashboardScreen extends StatelessWidget {
+// ==============================
+// PANTALLA PRINCIPAL (Dashboard)
+// Carga eventos reales de la API
+// ==============================
+class DashboardScreen extends StatefulWidget {
+  final String token;
+  final String apiBase;
   final VoidCallback onLogout;
 
-  const DashboardScreen({super.key, required this.onLogout});
+  const DashboardScreen({
+    super.key,
+    required this.token,
+    required this.apiBase,
+    required this.onLogout,
+  });
+
+  @override
+  State<DashboardScreen> createState() => _DashboardScreenState();
+}
+
+class _DashboardScreenState extends State<DashboardScreen> {
+  List<UpcomingEvent> events = [];
+  bool isLoading = true;
+  String? errorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadEvents();
+  }
+
+  Future<void> _loadEvents() async {
+    setState(() {
+      isLoading = true;
+      errorMessage = null;
+    });
+
+    try {
+      final response = await http.get(
+        Uri.parse("${widget.apiBase}/events/upcoming"),
+        headers: {
+          "Content-Type": "application/json",
+          // El JWT autentica al usuario en caso de que el endpoint requiera auth
+          "Authorization": "Bearer ${widget.token}",
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+        setState(() {
+          events = data.map((e) => UpcomingEvent.fromJson(e)).toList();
+          isLoading = false;
+        });
+      } else {
+        setState(() {
+          errorMessage = "Error al cargar eventos";
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        errorMessage = "Sin conexión";
+        isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.check_circle_outline, color: Colors.greenAccent, size: 32),
-              const SizedBox(height: 8),
-              const Text("¡Bienvenido!", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 12),
-              
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(color: Colors.white10, borderRadius: BorderRadius.circular(8)),
-                child: const Column(
-                  children: [
-                    Text("💊 Recordatorio Médico", style: TextStyle(fontSize: 10, color: Colors.white70)),
-                    Text("Tomar pastilla a las 08:00 AM", style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
-                  ],
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+        child: Column(
+          children: [
+            // Header
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: const [
+                Icon(Icons.music_note, color: Color(0xFFDF9E14), size: 16),
+                SizedBox(width: 4),
+                Text(
+                  "Próximos Eventos",
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFFDF9E14),
+                  ),
                 ),
-              ),
-              const SizedBox(height: 8),
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(color: Colors.white10, borderRadius: BorderRadius.circular(8)),
-                child: const Column(
-                  children: [
-                    Text("🏃 Actividad Física", style: TextStyle(fontSize: 10, color: Colors.white70)),
-                    Text("Caminata (30 min)", style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
-                  ],
+              ],
+            ),
+            const SizedBox(height: 8),
+
+            // Contenido
+            if (isLoading)
+              const Padding(
+                padding: EdgeInsets.all(16),
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: Color(0xFFDF9E14),
                 ),
-              ),
-              
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: onLogout,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.redAccent,
-                  minimumSize: const Size(80, 24),
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
-                ),
-                child: const Text("Salir", style: TextStyle(fontSize: 10, color: Colors.white)),
               )
+            else if (errorMessage != null)
+              Column(
+                children: [
+                  Text(
+                    errorMessage!,
+                    style: const TextStyle(fontSize: 10, color: Colors.redAccent),
+                  ),
+                  const SizedBox(height: 8),
+                  GestureDetector(
+                    onTap: _loadEvents,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.white10,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Text(
+                        "Reintentar",
+                        style: TextStyle(fontSize: 10, color: Colors.white70),
+                      ),
+                    ),
+                  ),
+                ],
+              )
+            else if (events.isEmpty)
+              const Padding(
+                padding: EdgeInsets.all(12),
+                child: Text(
+                  "No hay eventos\npróximos",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 11, color: Colors.white54),
+                ),
+              )
+            else
+              ...events.map((event) => _EventCard(event: event)).toList(),
+
+            const SizedBox(height: 12),
+
+            // Botón refrescar
+            GestureDetector(
+              onTap: _loadEvents,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Colors.white10,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.refresh, size: 12, color: Colors.white54),
+                    SizedBox(width: 4),
+                    Text(
+                      "Actualizar",
+                      style: TextStyle(fontSize: 10, color: Colors.white54),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 8),
+
+            // Botón cerrar sesión
+            GestureDetector(
+              onTap: widget.onLogout,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Colors.red.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.logout, size: 12, color: Colors.redAccent),
+                    SizedBox(width: 4),
+                    Text(
+                      "Cerrar sesión",
+                      style: TextStyle(fontSize: 10, color: Colors.redAccent),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ==============================
+// WIDGET: Tarjeta de evento
+// ==============================
+class _EventCard extends StatelessWidget {
+  final UpcomingEvent event;
+
+  const _EventCard({required this.event});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 6),
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: Colors.white10,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: const Color(0xFFDF9E14).withOpacity(0.3), width: 1),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            event.title,
+            style: const TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+          const SizedBox(height: 3),
+          Row(
+            children: [
+              const Icon(Icons.calendar_today, size: 9, color: Color(0xFFDF9E14)),
+              const SizedBox(width: 3),
+              Text(
+                "${event.date}  ${event.time}",
+                style: const TextStyle(fontSize: 9, color: Colors.white70),
+              ),
             ],
           ),
-        ),
+          const SizedBox(height: 2),
+          Row(
+            children: [
+              const Icon(Icons.location_on, size: 9, color: Colors.white38),
+              const SizedBox(width: 3),
+              Expanded(
+                child: Text(
+                  event.location,
+                  style: const TextStyle(fontSize: 9, color: Colors.white38),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
