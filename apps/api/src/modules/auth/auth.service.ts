@@ -59,6 +59,11 @@ export class AuthService {
       throw new UnauthorizedException('Credenciales inválidas');
     }
 
+    // Verificar que la cuenta no haya sido suspendida por un administrador
+    if (!user.isActive) {
+      throw new UnauthorizedException('Cuenta suspendida. Contacta al administrador.');
+    }
+
     const payload = { sub: user.id, email: user.email, role: 'USER' };
 
     return {

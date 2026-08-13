@@ -90,12 +90,13 @@ enum PricingFrequency {
 }
 
 model AdminUser {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  password  String   // Hash bcrypt
+  id        String          @id @default(uuid())
+  email     String          @unique
+  password  String          // Hash bcrypt
   name      String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  auditLogs UserAuditLog[]
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
 
   @@map("admin_users")
 }
@@ -120,16 +121,32 @@ model User {
   email          String             @unique
   password       String             // Hash bcrypt
   name           String
+  isActive       Boolean            @default(true) // Baja lógica
   smartwatchPin  String?            // Hash bcrypt del PIN de 6 dígitos
   pinExpiresAt   DateTime?
-  
-  medicalReminders  MedicalReminder[]
+
+  medicalReminders   MedicalReminder[]
   physicalActivities PhysicalActivity[]
+  auditLogs          UserAuditLog[]
 
   createdAt      DateTime           @default(now())
   updatedAt      DateTime           @updatedAt
 
   @@map("users")
+}
+
+// Registro de auditoría de cambios administrativos sobre usuarios
+model UserAuditLog {
+  id        String    @id @default(uuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  adminId   String
+  admin     AdminUser @relation(fields: [adminId], references: [id])
+  action    String    // "EDICION", "BAJA_LOGICA", "REACTIVACION"
+  detail    String    // Descripción del cambio
+  createdAt DateTime  @default(now())
+
+  @@map("user_audit_logs")
 }
 
 model MedicalReminder {
