@@ -9,6 +9,7 @@ import { TeachersModule } from './modules/teachers/teachers.module';
 import { InstrumentsModule } from './modules/instruments/instruments.module';
 import { PricingModule } from './modules/pricing/pricing.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
+import { UsersModule } from './modules/users/users.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { NotificationsModule } from './modules/notifications/notifications.modul
     InstrumentsModule,
     PricingModule,
     NotificationsModule,
+    UsersModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -6,6 +6,7 @@ const navItems = [
   { to: '/events',   icon: '🎵', label: 'Eventos' },
   { to: '/teachers', icon: '👨‍🏫', label: 'Maestros' },
   { to: '/pricing',  icon: '💰', label: 'Precios' },
+  { to: '/users',    icon: '👤', label: 'Usuarios' },
 ];
 
 export default function Sidebar() {
