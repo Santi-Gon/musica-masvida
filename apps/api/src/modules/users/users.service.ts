@@ -45,21 +45,25 @@ export class UsersService {
 
     const action = data.isActive === false ? 'BAJA_LOGICA' : data.isActive === true ? 'REACTIVACION' : 'EDICION';
 
-    const [updated] = await this.prisma.$transaction([
-      this.prisma.user.update({
-        where: { id },
-        data,
-        select: { id: true, name: true, email: true, isActive: true, updatedAt: true },
-      }),
-      this.prisma.userAuditLog.create({
+    const updated = await this.prisma.user.update({
+      where: { id },
+      data,
+      select: { id: true, name: true, email: true, isActive: true, updatedAt: true },
+    });
+
+    // Registrar en el log de auditoría (no crítico: si falla no revierte el update)
+    try {
+      await this.prisma.userAuditLog.create({
         data: {
           userId: id,
           adminId,
           action,
           detail: changes.length > 0 ? changes.join('; ') : 'Sin cambios detectados',
         },
-      }),
-    ]);
+      });
+    } catch (auditErr) {
+      console.error('Error al registrar auditoría:', auditErr);
+    }
 
     return updated;
   }

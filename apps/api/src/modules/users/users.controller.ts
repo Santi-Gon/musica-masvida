@@ -28,7 +28,7 @@ export class UsersController {
     @Body() body: { name?: string; email?: string; isActive?: boolean },
     @Request() req: any,
   ) {
-    const adminId: string = req.user.sub;
+    const adminId: string = req.user.id; // JwtStrategy maps payload.sub → req.user.id
     return this.usersService.update(id, body, adminId);
   }
 
