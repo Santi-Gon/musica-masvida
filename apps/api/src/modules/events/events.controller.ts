@@ -17,10 +17,34 @@ export class EventsController {
     return this.eventsService.findAll();
   }
 
-  // Próximos 3 eventos — usado por el smartwatch (debe ir ANTES de :id)
+  // Próximos 3 eventos — (Datos de prueba para el Parcial Móvil)
   @Get('upcoming')
   findUpcoming() {
-    return this.eventsService.findUpcoming();
+    return [
+      {
+        id: 'mock-1',
+        title: 'Gran Concierto de Invierno',
+        date: '2026-12-15T00:00:00.000Z',
+        time: '19:30',
+        location: 'Teatro Principal',
+      },
+      {
+        id: 'mock-2',
+        title: 'Recital de Piano Solo',
+        date: '2026-11-20T00:00:00.000Z',
+        time: '18:00',
+        location: 'Sala de Cámara',
+      },
+      {
+        id: 'mock-3',
+        title: 'Clase Magistral de Violín',
+        date: '2026-11-10T00:00:00.000Z',
+        time: '16:00',
+        location: 'Aula 4B',
+      }
+    ];
+    // Original (comentado por pruebas):
+    // return this.eventsService.findUpcoming();
   }
 
   // Protegido — solo admins

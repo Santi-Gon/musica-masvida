@@ -25,7 +25,7 @@ async function bootstrap() {
 
   // Railway usa la variable PORT; en local usamos API_PORT o 3000
   const port = process.env.PORT || process.env.API_PORT || 3000;
-  await app.listen(port, '0.0.0.0');
+  await app.listen(3000, '0.0.0.0');
   console.log(`Backend corriendo en puerto ${port}/api/v1`);
 }
 bootstrap();

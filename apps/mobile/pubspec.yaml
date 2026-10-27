@@ -1,0 +1,33 @@
+name: musica_masvida_mobile
+description: "Música Más Vida Mobile - Aplicación móvil para la escuela de música."
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.13.5
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.8
+
+  # HTTP client para peticiones de red a la API REST de NestJS
+  http: ^1.2.2
+
+  # Manejador de estado reactivo
+  provider: ^6.1.2
+
+  # TODO (Lab - QR Scanner): Agregar mobile_scanner: ^6.0.0
+  # para la práctica de laboratorio de escaneo de códigos QR.
+  # Requiere también agregar permisos de cámara en AndroidManifest.xml
+  # y Info.plist (iOS). Ver: https://pub.dev/packages/mobile_scanner
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
