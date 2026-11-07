@@ -62,6 +62,12 @@ class EventProvider extends ChangeNotifier {
     await fetchUpcomingEvents();
   }
 
+  Future<bool> isRegistered(String eventId, String token) =>
+      _eventService.isRegistered(eventId, token);
+
+  Future<void> registerForEvent(String eventId, String token) =>
+      _eventService.registerForEvent(eventId, token);
+
   String _parseError(Object e) {
     final raw = e.toString();
     if (raw.contains('SocketException') ||

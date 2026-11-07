@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../auth/providers/auth_provider.dart';
 
 /// Pantalla de inicio de la app.
 ///
@@ -52,7 +54,8 @@ class _SplashScreenState extends State<SplashScreen>
 
   void _navigateToHome() {
     if (mounted) {
-      Navigator.of(context).pushReplacementNamed('/home');
+      final route = context.read<AuthProvider>().isAuthenticated ? '/home' : '/login';
+      Navigator.of(context).pushReplacementNamed(route);
     }
   }
 

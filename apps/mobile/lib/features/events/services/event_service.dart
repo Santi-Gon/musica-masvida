@@ -11,7 +11,7 @@ class EventService {
   final http.Client _client;
   final bool useMock;
 
-  EventService({http.Client? client, this.useMock = true})
+  EventService({http.Client? client, this.useMock = false})
       : _client = client ?? http.Client();
 
   /// Obtiene la lista de próximos eventos desde GET /events/upcoming.
@@ -66,5 +66,50 @@ class EventService {
     } on Exception {
       rethrow;
     }
+  }
+
+  Future<bool> isRegistered(String eventId, String token) async {
+    if (useMock) return false;
+
+    final response = await _client
+        .get(
+          Uri.parse('${AppConstants.baseUrl}/events/$eventId/registration'),
+          headers: {'Authorization': 'Bearer $token'},
+        )
+        .timeout(const Duration(seconds: 10));
+
+    if (response.statusCode != 200) {
+      throw _responseException(response);
+    }
+
+    final data = jsonDecode(response.body) as Map<String, dynamic>;
+    return data['registered'] as bool? ?? false;
+  }
+
+  Future<void> registerForEvent(String eventId, String token) async {
+    if (useMock) return;
+
+    final response = await _client
+        .post(
+          Uri.parse('${AppConstants.baseUrl}/events/$eventId/register'),
+          headers: {'Authorization': 'Bearer $token'},
+        )
+        .timeout(const Duration(seconds: 10));
+
+    if (response.statusCode != 201) {
+      throw _responseException(response);
+    }
+  }
+
+  Exception _responseException(http.Response response) {
+    try {
+      final data = jsonDecode(response.body) as Map<String, dynamic>;
+      final message = data['message'];
+      if (message is String) return Exception(message);
+      if (message is List) return Exception(message.join('\n'));
+    } on FormatException {
+      return Exception('Error HTTP ${response.statusCode}');
+    }
+    return Exception('Error HTTP ${response.statusCode}');
   }
 }

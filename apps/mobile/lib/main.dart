@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'core/theme/app_theme.dart';
+import 'features/auth/providers/auth_provider.dart';
+import 'features/auth/screens/qr_login_screen.dart';
 import 'features/splash/screens/splash_screen.dart';
 import 'features/events/screens/home_screen.dart';
 import 'features/events/providers/event_provider.dart';
@@ -19,11 +21,8 @@ class MusicaMasVidaApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        // Provider de eventos próximos
         ChangeNotifierProvider(create: (_) => EventProvider()),
-
-        // TODO (Lab - QR Scanner): Registrar aquí el provider del escáner QR
-        // cuando se integre el paquete mobile_scanner en la práctica de laboratorio.
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
       ],
       child: MaterialApp(
         title: 'Música Más Vida',
@@ -32,6 +31,7 @@ class MusicaMasVidaApp extends StatelessWidget {
         initialRoute: '/splash',
         routes: {
           '/splash': (_) => const SplashScreen(),
+          '/login': (_) => const QrLoginScreen(),
           '/home': (_) => const HomeScreen(),
         },
       ),

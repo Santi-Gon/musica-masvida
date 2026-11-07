@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:musica_masvida_mobile/core/theme/app_theme.dart';
+import 'package:musica_masvida_mobile/features/auth/providers/auth_provider.dart';
 import 'package:musica_masvida_mobile/features/events/providers/event_provider.dart';
 import 'package:musica_masvida_mobile/features/events/screens/home_screen.dart';
 import 'package:musica_masvida_mobile/features/events/services/event_service.dart';
@@ -19,8 +20,13 @@ void main() {
         final eventProvider = EventProvider(eventService: eventService);
 
         await tester.pumpWidget(
-          ChangeNotifierProvider<EventProvider>.value(
-            value: eventProvider,
+          MultiProvider(
+            providers: [
+              ChangeNotifierProvider<EventProvider>.value(value: eventProvider),
+              ChangeNotifierProvider(
+                create: (_) => AuthProvider(initialToken: 'test-token'),
+              ),
+            ],
             child: MaterialApp(
               theme: AppTheme.darkTheme,
               home: const HomeScreen(),
@@ -91,8 +97,12 @@ void main() {
         expect(find.text('Ubicación'), findsOneWidget);
         expect(find.text('Auditorio Principal'), findsOneWidget);
 
-        // 5. Botón de acción para escanear asistencia QR
-        expect(find.text('Escanear QR de Asistencia'), findsOneWidget);
+        // 5. Acción para inscribirse al evento desde el móvil
+        expect(find.text('Inscribirme al evento'), findsOneWidget);
+        await tester.ensureVisible(find.text('Inscribirme al evento'));
+        await tester.tap(find.text('Inscribirme al evento'));
+        await tester.pumpAndSettle();
+        expect(find.text('Ya estás inscrito'), findsOneWidget);
 
         // ---------------------------------------------------------------------
         // PASO 7: Interacción de retorno: Tap en el botón 'Atrás'

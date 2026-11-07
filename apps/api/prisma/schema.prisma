@@ -21,9 +21,11 @@ model Event {
   time        String
   location    String
   imageUrl    String?
+  capacity    Int      @default(50)
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  registrations EventRegistration[]
 
   @@map("events")
 }
@@ -125,6 +127,8 @@ model User {
   smartwatchPin  String?            // Hash bcrypt del PIN de 6 dígitos
   pinExpiresAt   DateTime?
 
+  eventRegistrations EventRegistration[]
+  mobileLoginChallenges MobileLoginChallenge[]
   medicalReminders   MedicalReminder[]
   physicalActivities PhysicalActivity[]
   auditLogs          UserAuditLog[]
@@ -133,6 +137,32 @@ model User {
   updatedAt      DateTime           @updatedAt
 
   @@map("users")
+}
+
+model EventRegistration {
+  id        String   @id @default(uuid())
+  eventId   String
+  event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([eventId, userId])
+  @@index([userId])
+  @@map("event_registrations")
+}
+
+model MobileLoginChallenge {
+  id        String    @id @default(uuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  codeHash  String    @unique
+  expiresAt DateTime
+  consumedAt DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId, expiresAt])
+  @@map("mobile_login_challenges")
 }
 
 // Registro de auditoría de cambios administrativos sobre usuarios
@@ -180,4 +210,3 @@ model PhysicalActivity {
 
   @@map("physical_activities")
 }
-

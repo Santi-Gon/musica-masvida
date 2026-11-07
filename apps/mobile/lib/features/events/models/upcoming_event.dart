@@ -15,6 +15,8 @@ class UpcomingEvent {
 
   final String time;
   final String location;
+  final String description;
+  final int capacity;
 
   const UpcomingEvent({
     required this.id,
@@ -22,6 +24,8 @@ class UpcomingEvent {
     required this.date,
     required this.time,
     required this.location,
+    this.description = '',
+    this.capacity = 50,
   });
 
   /// Construye un [UpcomingEvent] desde un mapa JSON.
@@ -49,6 +53,8 @@ class UpcomingEvent {
       date: formattedDate,
       time: json['time'] as String? ?? '',
       location: json['location'] as String? ?? '',
+      description: json['description'] as String? ?? '',
+      capacity: (json['capacity'] as num?)?.toInt() ?? 50,
     );
   }
 
@@ -59,6 +65,8 @@ class UpcomingEvent {
         'date': date,
         'time': time,
         'location': location,
+        'description': description,
+        'capacity': capacity,
       };
 
   @override

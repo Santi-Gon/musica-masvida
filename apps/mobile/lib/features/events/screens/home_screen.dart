@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../auth/providers/auth_provider.dart';
 import '../providers/event_provider.dart';
 import '../models/upcoming_event.dart';
 import '../../../core/theme/app_theme.dart';
@@ -35,17 +36,18 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         title: const Text('Próximos Eventos'),
         actions: [
-          // TODO (Lab - QR Scanner): Este botón activará el escáner QR
-          // usando el paquete mobile_scanner para registrar asistencia a eventos.
-          // IconButton(
-          //   icon: const Icon(Icons.qr_code_scanner_rounded),
-          //   tooltip: 'Escanear QR (próximamente)',
-          //   onPressed: null, // Se habilitará en el laboratorio de QR
-          // ),
           IconButton(
             icon: const Icon(Icons.refresh_rounded),
             tooltip: 'Refrescar',
             onPressed: () => context.read<EventProvider>().refresh(),
+          ),
+          IconButton(
+            icon: const Icon(Icons.logout_rounded),
+            tooltip: 'Cerrar sesión',
+            onPressed: () {
+              context.read<AuthProvider>().logout();
+              Navigator.of(context).pushNamedAndRemoveUntil('/login', (_) => false);
+            },
           ),
         ],
       ),
@@ -195,8 +197,8 @@ class _EventCard extends StatelessWidget {
         child: InkWell(
           onTap: onTap,
           borderRadius: BorderRadius.circular(16),
-          splashColor: AppTheme.primaryGold.withOpacity(0.1),
-          highlightColor: AppTheme.primaryGold.withOpacity(0.05),
+          splashColor: AppTheme.primaryGold.withValues(alpha: 0.1),
+          highlightColor: AppTheme.primaryGold.withValues(alpha: 0.05),
           child: Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(16),
@@ -271,10 +273,10 @@ class _DateBadge extends StatelessWidget {
       width: 52,
       padding: const EdgeInsets.symmetric(vertical: 8),
       decoration: BoxDecoration(
-        color: AppTheme.primaryGold.withOpacity(0.12),
+        color: AppTheme.primaryGold.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppTheme.primaryGold.withOpacity(0.3),
+          color: AppTheme.primaryGold.withValues(alpha: 0.3),
           width: 1,
         ),
       ),

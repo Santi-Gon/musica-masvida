@@ -31,12 +31,19 @@ export const authApi = {
 // Events
 export interface AdminEvent {
   id: string; title: string; description: string; date: string;
-  time: string; location: string; imageUrl?: string; isActive: boolean; createdAt: string;
+  time: string; location: string; imageUrl?: string; isActive: boolean;
+  capacity: number; createdAt: string; _count: { registrations: number };
+}
+export interface EventRegistrations {
+  event: { id: string; title: string; capacity: number };
+  total: number;
+  registrations: { id: string; createdAt: string; user: { name: string; email: string } }[];
 }
 export const eventsApi = {
   getAll:    () => request<AdminEvent[]>('/events/admin/all'),
   getOne:    (id: string) => request<AdminEvent>(`/events/${id}`),
-  create:    (data: Omit<AdminEvent,'id'|'createdAt'>) => request<AdminEvent>('/events', { method:'POST', body: JSON.stringify(data) }),
+  getRegistrations: (id: string) => request<EventRegistrations>(`/events/admin/${id}/registrations`),
+  create:    (data: Omit<AdminEvent,'id'|'createdAt'|'_count'>) => request<AdminEvent>('/events', { method:'POST', body: JSON.stringify(data) }),
   update:    (id: string, data: Partial<AdminEvent>) => request<AdminEvent>(`/events/${id}`, { method:'PUT', body: JSON.stringify(data) }),
   remove:    (id: string) => request<void>(`/events/${id}`, { method:'DELETE' }),
 };

@@ -19,10 +19,8 @@ dependencies:
   # Manejador de estado reactivo
   provider: ^6.1.2
 
-  # TODO (Lab - QR Scanner): Agregar mobile_scanner: ^6.0.0
-  # para la práctica de laboratorio de escaneo de códigos QR.
-  # Requiere también agregar permisos de cámara en AndroidManifest.xml
-  # y Info.plist (iOS). Ver: https://pub.dev/packages/mobile_scanner
+  # Escaneo del QR de inicio de sesión generado desde el portal web.
+  mobile_scanner: ^6.0.2
 
 dev_dependencies:
   flutter_test:

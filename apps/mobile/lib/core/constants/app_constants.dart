@@ -8,14 +8,11 @@ class AppConstants {
   static const String baseUrlEmulator = 'http://10.0.2.2:3000/api/v1';
 
   /// ▶ Para CELULAR FÍSICO (misma red WiFi que el PC).
-  /// Reemplaza con la IP de tu PC: ejecuta `ipconfig` en PowerShell.
-  /// IP actual de tu PC: 192.168.1.111
-  static const String baseUrlDevice = 'http://192.168.1.111:3000/api/v1';
-
-  /// 🔧 CAMBIA ESTO según dónde estás probando:
-  ///   - [baseUrlEmulator] si usas el emulador Android Studio
-  ///   - [baseUrlDevice]   si usas tu celular físico por USB o WiFi
-  static const String baseUrl = baseUrlDevice;
+  /// Ejecuta `ipconfig` y pásala con --dart-define=API_BASE_URL=http://ip-local:3000/api/v1.
+  static const String baseUrl = String.fromEnvironment(
+    'API_BASE_URL',
+    defaultValue: baseUrlEmulator,
+  );
 
   // --- App Info ---
   static const String appName = 'Música Más Vida';

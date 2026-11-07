@@ -1,18 +1,81 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../auth/providers/auth_provider.dart';
 import '../models/upcoming_event.dart';
+import '../providers/event_provider.dart';
 import '../../../core/theme/app_theme.dart';
 
 /// Pantalla de detalle de un evento.
 ///
 /// Recibe un [UpcomingEvent] y muestra todos sus datos de forma destacada.
 /// Navegación: se accede desde [HomeScreen] tocando una tarjeta de evento.
-class EventDetailScreen extends StatelessWidget {
+class EventDetailScreen extends StatefulWidget {
   final UpcomingEvent event;
 
   const EventDetailScreen({super.key, required this.event});
 
   @override
+  State<EventDetailScreen> createState() => _EventDetailScreenState();
+}
+
+class _EventDetailScreenState extends State<EventDetailScreen> {
+  bool? _isRegistered;
+  bool _isRegistering = false;
+  String? _registrationError;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _loadRegistrationStatus());
+  }
+
+  Future<void> _loadRegistrationStatus() async {
+    final token = context.read<AuthProvider>().token;
+    if (token == null) return;
+
+    try {
+      final registered = await context
+          .read<EventProvider>()
+          .isRegistered(widget.event.id, token);
+      if (mounted) setState(() => _isRegistered = registered);
+    } catch (error) {
+      if (mounted) {
+        setState(() {
+          _isRegistered = false;
+          _registrationError = error.toString().replaceFirst('Exception: ', '');
+        });
+      }
+    }
+  }
+
+  Future<void> _register() async {
+    final token = context.read<AuthProvider>().token;
+    if (token == null) return;
+
+    setState(() {
+      _isRegistering = true;
+      _registrationError = null;
+    });
+    try {
+      await context
+          .read<EventProvider>()
+          .registerForEvent(widget.event.id, token);
+      if (mounted) setState(() => _isRegistered = true);
+    } catch (error) {
+      if (mounted) {
+        setState(() {
+          _registrationError =
+              error.toString().replaceFirst('Exception: ', '');
+        });
+      }
+    } finally {
+      if (mounted) setState(() => _isRegistering = false);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final event = widget.event;
     return Scaffold(
       backgroundColor: AppTheme.backgroundDark,
       appBar: AppBar(
@@ -77,46 +140,66 @@ class EventDetailScreen extends StatelessWidget {
                           value: event.location,
                           isLast: true,
                         ),
+                        const Divider(height: 1, color: AppTheme.dividerDark),
+                        _DetailRow(
+                          icon: Icons.people_alt_rounded,
+                          label: 'Cupo máximo',
+                          value: '${event.capacity} personas',
+                          isLast: true,
+                        ),
                       ],
                     ),
                   ),
 
+                  if (event.description.isNotEmpty) ...[
+                    const SizedBox(height: 24),
+                    const Text(
+                      'Descripción',
+                      style: TextStyle(
+                        color: AppTheme.primaryGold,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 1.2,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      event.description,
+                      style: const TextStyle(color: AppTheme.textSecondary),
+                    ),
+                  ],
                   const SizedBox(height: 32),
 
-                  // TODO (Lab - QR Scanner): Botón para generar/escanear QR
-                  // de asistencia al evento. Se activará en la práctica de
-                  // laboratorio usando el paquete mobile_scanner.
                   SizedBox(
                     width: double.infinity,
-                    child: OutlinedButton.icon(
-                      // onPressed: null → inactivo hasta la práctica de lab
-                      onPressed: null,
-                      icon: const Icon(Icons.qr_code_rounded),
-                      label: const Text('Escanear QR de Asistencia'),
-                      style: OutlinedButton.styleFrom(
-                        side: const BorderSide(
-                          color: AppTheme.dividerDark,
-                          width: 1.5,
-                        ),
-                        disabledForegroundColor:
-                            AppTheme.textMuted.withOpacity(0.7),
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
+                    child: ElevatedButton.icon(
+                      onPressed: _isRegistering || _isRegistered == true
+                          ? null
+                          : _register,
+                      icon: Icon(
+                        _isRegistered == true
+                            ? Icons.check_circle_outline_rounded
+                            : Icons.event_available_rounded,
+                      ),
+                      label: Text(
+                        _isRegistering
+                            ? 'Inscribiendo...'
+                            : _isRegistered == true
+                                ? 'Ya estás inscrito'
+                                : 'Inscribirme al evento',
                       ),
                     ),
                   ),
-                  const SizedBox(height: 8),
-                  const Center(
-                    child: Text(
-                      'Función disponible en la práctica de laboratorio',
-                      style: TextStyle(
-                        color: AppTheme.textMuted,
-                        fontSize: 11,
+                  if (_registrationError != null) ...[
+                    const SizedBox(height: 12),
+                    Center(
+                      child: Text(
+                        _registrationError!,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(color: Colors.redAccent),
                       ),
                     ),
-                  ),
+                  ],
                 ],
               ),
             ),
@@ -157,9 +240,9 @@ class _EventHeroHeader extends StatelessWidget {
               height: 60,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: AppTheme.primaryGold.withOpacity(0.15),
+                color: AppTheme.primaryGold.withValues(alpha: 0.15),
                 border: Border.all(
-                  color: AppTheme.primaryGold.withOpacity(0.4),
+                  color: AppTheme.primaryGold.withValues(alpha: 0.4),
                   width: 1.5,
                 ),
               ),
@@ -234,7 +317,7 @@ class _DetailRow extends StatelessWidget {
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: AppTheme.primaryGold.withOpacity(0.1),
+                color: AppTheme.primaryGold.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(icon, color: AppTheme.primaryGold, size: 20),

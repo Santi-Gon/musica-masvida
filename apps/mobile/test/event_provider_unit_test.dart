@@ -20,6 +20,12 @@ class MockEventService implements EventService {
     }
     return responseData ?? [];
   }
+
+  @override
+  Future<bool> isRegistered(String eventId, String token) async => false;
+
+  @override
+  Future<void> registerForEvent(String eventId, String token) async {}
 }
 
 void main() {

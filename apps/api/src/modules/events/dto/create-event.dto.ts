@@ -1,4 +1,12 @@
-import { IsString, IsNotEmpty, IsDateString, IsOptional, IsBoolean } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  IsDateString,
+  IsOptional,
+  IsBoolean,
+  IsInt,
+  Min,
+} from 'class-validator';
 
 export class CreateEventDto {
   @IsString()
@@ -27,4 +35,9 @@ export class CreateEventDto {
   @IsOptional()
   @IsBoolean()
   isActive?: boolean;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  capacity?: number;
 }

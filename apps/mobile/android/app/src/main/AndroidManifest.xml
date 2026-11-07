@@ -2,8 +2,7 @@
     <!-- Permiso de red requerido para peticiones HTTP a la API REST de NestJS -->
     <uses-permission android:name="android.permission.INTERNET"/>
 
-    <!-- TODO (Lab - QR Scanner): Descomentar cuando se integre mobile_scanner -->
-    <!-- <uses-permission android:name="android.permission.CAMERA"/> -->
+    <uses-permission android:name="android.permission.CAMERA"/>
 
     <application
         android:label="Música Más Vida"

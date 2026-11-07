@@ -3,6 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../../common/prisma.service';
 import { LoginDto } from './dto/login.dto';
 import * as bcrypt from 'bcrypt';
+import { createHash, randomBytes } from 'crypto';
 
 @Injectable()
 export class AuthService {
@@ -72,6 +73,80 @@ export class AuthService {
         id: user.id,
         email: user.email,
         name: user.name,
+        role: 'USER',
+      },
+    };
+  }
+
+  async generateMobileQr(userId: string, role: string) {
+    if (role !== 'USER') {
+      throw new UnauthorizedException('Solo los alumnos pueden iniciar sesión en la app móvil');
+    }
+
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user || !user.isActive) {
+      throw new UnauthorizedException('La cuenta no está disponible');
+    }
+
+    const code = randomBytes(32).toString('base64url');
+    const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
+    const codeHash = createHash('sha256').update(code).digest('hex');
+
+    await this.prisma.mobileLoginChallenge.deleteMany({
+      where: { expiresAt: { lt: new Date() } },
+    });
+    await this.prisma.mobileLoginChallenge.updateMany({
+      where: { userId, consumedAt: null },
+      data: { consumedAt: new Date() },
+    });
+    await this.prisma.mobileLoginChallenge.create({
+      data: { userId, codeHash, expiresAt },
+    });
+
+    return { code, expiresAt };
+  }
+
+  async loginWithMobileQr(code: string) {
+    const codeHash = createHash('sha256').update(code).digest('hex');
+    const now = new Date();
+    const challenge = await this.prisma.mobileLoginChallenge.findUnique({
+      where: { codeHash },
+      include: { user: true },
+    });
+
+    if (
+      !challenge ||
+      challenge.consumedAt ||
+      challenge.expiresAt <= now ||
+      !challenge.user.isActive
+    ) {
+      throw new UnauthorizedException('El código QR no es válido o ya expiró');
+    }
+
+    const consumed = await this.prisma.mobileLoginChallenge.updateMany({
+      where: {
+        id: challenge.id,
+        consumedAt: null,
+        expiresAt: { gt: now },
+      },
+      data: { consumedAt: now },
+    });
+    if (consumed.count !== 1) {
+      throw new UnauthorizedException('El código QR ya fue utilizado o expiró');
+    }
+
+    const payload = {
+      sub: challenge.user.id,
+      email: challenge.user.email,
+      role: 'USER',
+    };
+
+    return {
+      accessToken: this.jwtService.sign(payload),
+      user: {
+        id: challenge.user.id,
+        email: challenge.user.email,
+        name: challenge.user.name,
         role: 'USER',
       },
     };
@@ -219,4 +294,3 @@ export class AuthService {
     };
   }
 }
-
