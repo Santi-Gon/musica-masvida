@@ -2,17 +2,15 @@
 
 **Resumen general del proyecto**
 
-El proyecto consiste en ampliar **Música Más Vida** mediante la integración entre un sitio web, la aplicación móvil y un wearable, asignando una función específica a cada plataforma.
+El proyecto consiste en ampliar **Música Más Vida** mediante la integración entre el sitio web público y administrativo, la aplicación móvil y el backend que comparten.
 
 El **sitio web** (desarrollado en React \+ Vite \+ TypeScript) funciona como el portal público y administrativo de la escuela de música. Desde él se pueden consultar eventos, maestros, instrumentos, precios y el historial de actividades. Adicionalmente, el administrador puede crear y gestionar eventos musicales (recitales, masterclasses, talleres, festivales), con información como nombre, descripción, fecha, hora y ubicación.
 
-La **aplicación móvil**, desarrollada en Flutter, permite al usuario consultar próximos eventos, ver su información detallada, inscribirse a ellos y autenticarse mediante el **escaneo de un código QR temporal generado desde el sitio web**. La app móvil ya cuenta con estas funciones conectadas a la API; las funciones de calendario y las mejoras de integración con el wearable pertenecen al alcance posterior del Parcial 3.
+La **aplicación móvil**, desarrollada en Flutter, permite al usuario consultar próximos eventos, ver su información detallada, inscribirse a ellos y autenticarse mediante el **escaneo de un código QR temporal generado desde el sitio web**. La app móvil ya cuenta con estas funciones conectadas a la API; en el Parcial 3 se agregará la integración con el calendario del dispositivo y un mecanismo para reportar errores del sistema.
 
-El **wearable** (ya existente como app Flutter para Wear OS) funciona como dispositivo complementario. Actualmente permite al usuario iniciar sesión con un PIN de 6 dígitos, consultar los próximos eventos directamente desde su muñeca y ver su nombre, fecha, hora y ubicación. En las fases posteriores, este componente se potenciará como medio de notificación y recordatorio de eventos registrados.
+El **backend** está construido con **NestJS \+ Prisma** y expone una API REST que sirve de punto central para la web y la app móvil. Ya cuenta con módulos de autenticación, eventos, usuarios, maestros, instrumentos, precios y notificaciones.
 
-El **backend** está construido con **NestJS \+ Prisma** y expone una API REST que sirve de punto central para la web, la app móvil y el wearable. Ya cuenta con módulos de autenticación, eventos, usuarios, maestros, instrumentos, precios y notificaciones.
-
-El desarrollo se realizará de manera progresiva durante tres unidades. En la primera se construirá la aplicación móvil en Flutter y su integración con la API existente para consultar y mostrar eventos; en la segunda se implementará el flujo de autenticación por QR (la web genera el código QR, la app lo escanea con la cámara del teléfono para iniciar sesión), el registro de usuarios a eventos y la sincronización con el panel web; y en la tercera se incorporará la integración con el calendario del dispositivo y la sincronización completa con el wearable para notificaciones y recordatorios. Al finalizar, se contará con un sistema integrado donde la **web administra**, la **app móvil permite interactuar y registrarse**, y el **wearable notifica y recuerda** los eventos programados.
+El desarrollo se realizará de manera progresiva durante tres unidades. En la primera se construirá la aplicación móvil en Flutter y su integración con la API existente para consultar y mostrar eventos; en la segunda se implementará el flujo de autenticación por QR (la web genera el código QR, la app lo escanea con la cámara del teléfono para iniciar sesión), el registro de usuarios a eventos y la sincronización con el panel web; y en la tercera se incorporará la integración con el calendario del dispositivo, el sistema de tickets para reportar y gestionar errores y el despliegue de la solución. El frontend ya está desplegado en Vercel; se desplegarán también la aplicación móvil, el backend y la base de datos. Al finalizar, se contará con un sistema integrado donde la **web administra** y la **app móvil permite consultar eventos, registrarse, añadirlos al calendario y reportar errores**.
 
 **Parcial 1**
 
@@ -22,7 +20,7 @@ En la primera unidad se desarrollará la base funcional de la aplicación móvil
 
 La aplicación móvil contará con la navegación principal entre pantallas, una pantalla de bienvenida o splash, una pantalla de inicio que liste los próximos eventos consumidos de la API (GET /api/v1/events/upcoming), y una pantalla de detalle de evento que muestre la información completa de la actividad seleccionada.
 
-**Evidencias a entregar:** diseño de interfaces, arquitectura Web–Mobile–Wearable, proyecto Flutter funcional, navegación entre pantallas, consumo de la API de eventos con el backend en local, listado de próximos eventos en la app, visualización del detalle de cada evento, repositorio Git actualizado y capturas o video de funcionamiento.
+**Evidencias a entregar:** diseño de interfaces, arquitectura Web–Mobile, proyecto Flutter funcional, navegación entre pantallas, consumo de la API de eventos con el backend en local, listado de próximos eventos en la app, visualización del detalle de cada evento, repositorio Git actualizado y capturas o video de funcionamiento.
 
 **Resultado esperado:** crear las vistas que va utilizar la aplicación y que se comunique con el backend en local, para poder tener una UX fluida y con la cual trabajar después.
 
@@ -53,17 +51,18 @@ El registro realizado desde la aplicación deberá reflejarse en el panel admini
 
 **Parcial 3 Diciembre**
 
-## Integración con calendario, wearable y sistema final
+## Calendario, reportes de errores y despliegue del sistema
+En la tercera unidad se completará la integración entre Música Más Vida Web y Música Más Vida Mobile. Después de registrarse exitosamente a un evento, el usuario tendrá la opción de agregar la actividad directamente al **calendario del dispositivo móvil**, incluyendo nombre del evento, fecha, hora, ubicación y descripción, utilizando el paquete add\_2\_calendar o equivalente.
 
-En la tercera unidad se completará la integración de los tres componentes: Música Más Vida Web, Música Más Vida Mobile y el wearable Wear OS. Después de registrarse exitosamente a un evento, el usuario tendrá la opción de agregar la actividad directamente al **calendario del dispositivo móvil**, incluyendo nombre del evento, fecha, hora, ubicación y descripción, utilizando el paquete add\_2\_calendar o equivalente.
+La app móvil incorporará un **botón para reportar errores del sistema**. Al enviar un reporte, se generará un ticket con la información proporcionada y quedará visible en el panel administrativo para que el administrador pueda revisar y gestionar el problema. Desde el panel podrá modificar la relevancia o prioridad del error y actualizar el estado del ticket, por ejemplo: **Pendiente, En proceso, En revisión y Terminado**. El ticket conservará la información del reporte y sus cambios de estado para facilitar el seguimiento.
 
-El **wearable** (ya existente en Flutter para Wear OS) se potenciará como complemento de la plataforma: además de consultar eventos, mostrará **notificaciones y recordatorios** de las actividades a las que el usuario se registró, con avisos configurables antes del inicio de cada sesión, conectándose al módulo de notificaciones del backend (/api/v1/notifications).
+También se realizará el despliegue de la aplicación móvil y de los servicios del sistema: frontend, backend/API y base de datos. **El frontend ya está desplegado en Vercel**; se desplegarán el backend y la base de datos y se configurará la comunicación entre los componentes desplegados.
 
 Durante esta etapa también se realizarán las pruebas finales, corrección de errores, mejoras de interfaz basadas en los entregables previos y preparación de la versión final de la aplicación.
 
-**Evidencias a entregar:** integración con el calendario nativo del dispositivo, creación de eventos desde la app, notificaciones y recordatorios en el wearable, sincronización completa Web–Mobile–Wearable, pruebas funcionales y de integración, repositorio actualizado, documentación técnica y demostración del sistema completo.
+**Evidencias a entregar:** integración con el calendario nativo del dispositivo, creación de eventos desde la app, botón de reporte de errores, generación y gestión de tickets desde el panel administrativo, modificación de prioridad y estados del ticket, pruebas funcionales y de integración, frontend desplegado en Vercel, despliegue del backend y la base de datos, repositorio actualizado, documentación técnica y demostración del sistema completo.
 
-**Resultado esperado:** un sistema integral donde la web administra los eventos musicales, la app móvil permite consultar, registrarse y añadir eventos al calendario personal, y el wearable funciona como medio de notificación y recordatorio en la muñeca del usuario.
+**Resultado esperado:** un sistema integrado donde la web administra los eventos y los tickets de errores, y la app móvil permite consultar eventos, registrarse, añadir eventos al calendario y reportar errores. Los componentes web, backend y base de datos estarán desplegados y comunicados; el frontend permanecerá desplegado en Vercel.
 
 ## Prácticas de Laboratorio
 
@@ -75,7 +74,7 @@ Durante esta etapa también se realizarán las pruebas finales, corrección de e
 | ----- | ----- |
 | 1\. Prototipo e integración inicial | API → app móvil lista eventos → detalle |
 | 2\. Registro móvil y autenticación por QR | Web genera QR → cámara lo escanea → sesión → registro → panel web  |
-| 3\. Sistema integral | Calendario → wearable → integración final |
+| 3\. Sistema integral | Calendario → reporte y gestión de errores → despliegue de frontend, backend y base de datos |
 
 **Preguntas del Proyecto**
 
@@ -83,7 +82,7 @@ Durante esta etapa también se realizarán las pruebas finales, corrección de e
 
 Para **Música Más Vida Mobile** se seleccionó **Flutter** como framework principal. La elección se sustenta en varios criterios alineados con las necesidades del proyecto.
 
-El primero es la **consistencia con el ecosistema existente**: el proyecto ya cuenta con una aplicación Flutter funcional para Wear OS (apps/smartwatch) que se conecta a la API de NestJS. Elegir Flutter para la app móvil permite reutilizar conocimiento del lenguaje Dart, compartir modelos de datos (como el modelo UpcomingEvent) y mantener una arquitectura coherente entre la app del smartwatch y la app del teléfono.
+El primero es la **adecuación a las necesidades del proyecto**: Flutter permite crear la aplicación móvil multiplataforma y acceder a las funciones del teléfono necesarias, como la cámara para escanear códigos QR y el calendario del dispositivo. También permite mantener una arquitectura clara para las pantallas, los modelos y los servicios que se comunican con la API.
 
 El segundo criterio es el **acceso a funciones del dispositivo** mediante paquetes del ecosistema de pub.dev. La app usa `mobile_scanner` para escanear códigos QR con la cámara y `http` para consumir la API REST y enviar el token de sesión en las solicitudes protegidas. La integración con el calendario nativo corresponde al alcance del Parcial 3 y todavía no está implementada en la app móvil.
 
@@ -91,11 +90,11 @@ El tercer criterio es el **rendimiento y la experiencia de usuario**. Flutter co
 
 El cuarto criterio es el **desarrollo multiplataforma con un único código base**, que permitirá generar versiones para Android e iOS en el futuro sin duplicar el esfuerzo de desarrollo, reduciendo el tiempo de mantenimiento.
 
-Finalmente, dado el **tiempo limitado de 2 a 3 semanas** disponible para el desarrollo, Flutter con su *Hot Reload* y su capacidad de reutilizar componentes ya probados en el wearable acelera significativamente el ciclo de iteración y reduce el riesgo de no entregar en los plazos establecidos.
+Finalmente, dado el **tiempo limitado de 2 a 3 semanas** disponible para el desarrollo, Flutter y su función *Hot Reload* aceleran el ciclo de iteración y reducen el riesgo de no entregar en los plazos establecidos.
 
 **2\. ¿Cómo piensas implementar el framework alrededor de tu proyecto en Flutter?**
 
-**Música Más Vida Mobile** está implementada en `apps/mobile` dentro del monorepo y se conecta a la API NestJS existente en `apps/api`, que también sirve al sitio web y al smartwatch.
+**Música Más Vida Mobile** está implementada en `apps/mobile` dentro del monorepo y se conecta a la API NestJS existente en `apps/api`, que también sirve al sitio web.
 
 **Integración con el backend existente:** La app consulta los próximos eventos mediante `GET /api/v1/events/upcoming`. Para iniciar sesión, envía el código leído del QR a `POST /api/v1/auth/mobile-login`, que devuelve el token de sesión. Para consultar si ya existe una inscripción usa `GET /api/v1/events/:eventId/registration` y para inscribirse usa `POST /api/v1/events/:eventId/register`. Las llamadas HTTP se realizan con el paquete `http`; las solicitudes protegidas incluyen el token JWT.
 
@@ -105,7 +104,7 @@ Finalmente, dado el **tiempo limitado de 2 a 3 semanas** disponible para el desa
 
 **Autenticación por código QR:** El portal web genera un QR temporal y de un solo uso, con una vigencia de cinco minutos. La app Flutter utiliza `mobile_scanner` para leerlo con la cámara y envía el código al backend mediante `POST /api/v1/auth/mobile-login`. Si el código es válido, la API devuelve un JWT de sesión para las operaciones autenticadas de la app.
 
-**Diseño UI/UX consistente:** Se respetará la identidad visual del proyecto Música Más Vida, utilizando la paleta de colores dorada (\#DF9E14) ya presente en el wearable y construyendo componentes de tarjeta de evento reutilizables que presenten la información de forma clara y atractiva, adaptada al tamaño de pantalla de un smartphone.
+**Diseño UI/UX consistente:** Se respetará la identidad visual del proyecto Música Más Vida, utilizando la paleta de colores dorada (\#DF9E14) y construyendo componentes de tarjeta de evento reutilizables que presenten la información de forma clara y atractiva, adaptada al tamaño de pantalla de un smartphone.
 
 **3\. ¿Qué paradigma voy a usar?**
 
@@ -114,11 +113,11 @@ En **Música Más Vida Mobile** se utiliza principalmente el **paradigma de Prog
 **Fundamento técnico del paradigma:** En Dart todo es un objeto, incluso los tipos primitivos como números y booleanos. Esto hace que la POO no sea simplemente una opción de diseño, sino la base estructural del lenguaje. Los cuatro pilares del paradigma se aplican de forma natural en el desarrollo Flutter:
 
 * **Encapsulamiento:** Cada pantalla o componente de la app es una clase que agrupa sus datos y comportamiento de forma privada. Por ejemplo, el estado interno de una pantalla (como la lista de eventos cargados o el token de sesión del usuario) se mantiene encapsulado dentro de su clase State, evitando que otros componentes lo modifiquen directamente.  
-* **Herencia:** Las pantallas de la app extienden (extends) las clases base de Flutter como StatelessWidget o StatefulWidget, heredando su ciclo de vida y comportamiento de renderizado. Esto ya se puede observar en el código del wearable existente, donde LoginScreen, DashboardScreen y \_EventCard heredan de estas clases base.  
+* **Herencia:** Las pantallas de la app extienden (extends) las clases base de Flutter como StatelessWidget o StatefulWidget, heredando su ciclo de vida y comportamiento de renderizado.
 * **Polimorfismo:** Distintas pantallas implementan el método build() de forma diferente, pero Flutter las trata de manera uniforme al renderizar el árbol de widgets. Cada widget puede sobrescribir comportamientos heredados para adaptarse a su propósito específico.  
 * **Abstracción:** Los modelos de datos (como UpcomingEvent) abstraen la estructura del JSON que devuelve la API en objetos con tipos definidos, utilizando constructores factory como fromJson(). Los servicios (EventService y MobileAuthService) abstraen la lógica de comunicación con la API, ocultando los detalles HTTP al resto de la aplicación.
 
-**Evidencia en el proyecto actual:** El paradigma orientado a objetos ya está siendo aplicado exitosamente en el componente apps/smartwatch. Clases como SmartwatchApp, WatchScreen, LoginScreen, DashboardScreen y UpcomingEvent demuestran el uso de encapsulamiento, herencia de widgets y abstracción de modelos de datos. La aplicación móvil sigue este mismo enfoque, manteniendo coherencia arquitectónica entre ambas apps Flutter del proyecto.
+**Evidencia en el proyecto actual:** El paradigma orientado a objetos se aplica en la aplicación móvil mediante clases para pantallas, modelos, servicios y proveedores, que encapsulan responsabilidades y abstraen el acceso a la API.
 
 **Complemento reactivo:** Aunque el paradigma principal es la POO, se complementará con principios **reactivos** propios del patrón de manejo de estado de Flutter (como streams o providers), donde la interfaz reacciona automáticamente a cambios en los datos. Este enfoque mixto es el estándar en el desarrollo Flutter moderno y no contradice la base orientada a objetos, sino que la enriquece.
 
@@ -133,7 +132,7 @@ En **Música Más Vida Mobile** se utiliza principalmente el **paradigma de Prog
 
 ## 1. ¿Qué framework móvil seleccionas y cuáles son los criterios?
 
-Se selecciona **Flutter**, utilizando **Dart**. Es coherente con el proyecto porque ya existe una app Flutter para Wear OS (`apps/smartwatch`), permite mantener un ecosistema común para los clientes Flutter y ofrece paquetes para las funciones móviles requeridas. En `apps/mobile/pubspec.yaml` ya están incorporados `provider` para el estado compartido, `http` para consumir la API REST y `mobile_scanner` para escanear el QR con la cámara. Flutter permite compartir código entre Android e iOS; la ejecución local documentada y validada para este proyecto es Android.
+Se selecciona **Flutter**, utilizando **Dart**, porque permite crear la aplicación móvil multiplataforma y ofrece paquetes para las funciones requeridas. En `apps/mobile/pubspec.yaml` ya están incorporados `provider` para el estado compartido, `http` para consumir la API REST y `mobile_scanner` para escanear el QR con la cámara. Flutter permite compartir código entre Android e iOS; la ejecución local documentada y validada para este proyecto es Android.
 
 ## 2. ¿Cómo se implementa Flutter alrededor del proyecto?
 

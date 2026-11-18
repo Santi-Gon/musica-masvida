@@ -1,0 +1,33 @@
+# Blueprint de Render: https://render.com/docs/blueprint-spec
+# Crea el Web Service gratuito del backend en el monorepo.
+# La base de datos NO se crea aquí: usa Neon (el Postgres free de Render
+# se elimina a los 30 días). Pega la cadena directa de Neon en DATABASE_URL.
+
+services:
+  - type: web
+    name: musica-masvida-api
+    runtime: node
+    plan: free
+    region: ohio
+    branch: main
+    autoDeploy: true
+    buildCommand: pnpm install --frozen-lockfile && pnpm --filter api exec prisma generate && pnpm --filter api build
+    startCommand: pnpm --filter api start:prod
+    healthCheckPath: /api/v1
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 24h
+      - key: VAPID_PUBLIC_KEY
+        sync: false
+      - key: VAPID_PRIVATE_KEY
+        sync: false
+      - key: VAPID_SUBJECT
+        sync: false
