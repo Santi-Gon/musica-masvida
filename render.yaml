@@ -9,7 +9,7 @@ services:
     runtime: node
     plan: free
     region: ohio
-    branch: main
+    branch: correcciones
     autoDeploy: true
     buildCommand: pnpm install --frozen-lockfile && pnpm --filter api exec prisma generate && pnpm --filter api build
     startCommand: pnpm --filter api start:prod

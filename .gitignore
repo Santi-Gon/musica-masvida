@@ -31,3 +31,6 @@ postgres_data/
 *.log
 npm-debug.log*
 pnpm-debug.log*
+
+# Archivos temporales de editores
+.~lock.*#
