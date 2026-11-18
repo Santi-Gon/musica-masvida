@@ -1,0 +1,8 @@
+﻿{
+    "me":  200,
+    "deleteConUser":  204,
+    "adminAllConUser":  200,
+    "claims":  "{\"sub\":\"7bba6bae-2c6c-4449-9ea7-1ad5d697e529\",\"email\":\"alumno@musicamasvida.com\",\"role\":\"USER\",\"iat\":1795041109,\"exp\":1795127509}",
+    "tokenSinCredenciales":  true,
+    "eventoDespues":  404
+}

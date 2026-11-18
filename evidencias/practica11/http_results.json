@@ -1,0 +1,318 @@
+{
+  "fecha": "2026-11-18T22:29:03.811Z",
+  "api": "https://musica-masvida-api.onrender.com/api/v1",
+  "pruebas": {
+    "warmup": {
+      "status": 200,
+      "ms": 525.11
+    },
+    "login": {
+      "status": 200,
+      "ms": 400.6,
+      "bytes": 406,
+      "campos": [
+        "accessToken",
+        "user"
+      ]
+    },
+    "loginUsuario": {
+      "setupStatus": 201,
+      "loginStatus": 200,
+      "ms": 395.44
+    },
+    "diez_solicitudes": [
+      {
+        "solicitud": 1,
+        "codigo": 200,
+        "ms": 154.03,
+        "bytes": 2
+      },
+      {
+        "solicitud": 2,
+        "codigo": 200,
+        "ms": 146.77,
+        "bytes": 2
+      },
+      {
+        "solicitud": 3,
+        "codigo": 200,
+        "ms": 166.36,
+        "bytes": 2
+      },
+      {
+        "solicitud": 4,
+        "codigo": 200,
+        "ms": 159.85,
+        "bytes": 2
+      },
+      {
+        "solicitud": 5,
+        "codigo": 200,
+        "ms": 158.86,
+        "bytes": 2
+      },
+      {
+        "solicitud": 6,
+        "codigo": 200,
+        "ms": 176.65,
+        "bytes": 2
+      },
+      {
+        "solicitud": 7,
+        "codigo": 200,
+        "ms": 165.68,
+        "bytes": 2
+      },
+      {
+        "solicitud": 8,
+        "codigo": 200,
+        "ms": 147.86,
+        "bytes": 2
+      },
+      {
+        "solicitud": 9,
+        "codigo": 200,
+        "ms": 153.21,
+        "bytes": 2
+      },
+      {
+        "solicitud": 10,
+        "codigo": 200,
+        "ms": 152.08,
+        "bytes": 2
+      }
+    ],
+    "subida": [
+      {
+        "intento": 1,
+        "status": 201,
+        "ms": 150.66,
+        "bytes": 4244,
+        "mbps": 0.234
+      },
+      {
+        "intento": 2,
+        "status": 201,
+        "ms": 161.62,
+        "bytes": 4244,
+        "mbps": 0.218
+      },
+      {
+        "intento": 3,
+        "status": 201,
+        "ms": 151.17,
+        "bytes": 4244,
+        "mbps": 0.233
+      }
+    ],
+    "descarga_web": {
+      "js": "/assets/index-Las1ngtc.js",
+      "status": 200,
+      "ms": 142.48,
+      "bytes": 311045,
+      "mbps": 17.464
+    },
+    "descarga": [
+      {
+        "intento": 1,
+        "ms": 186.25,
+        "bytes": 13240,
+        "mbps": 0.569
+      },
+      {
+        "intento": 2,
+        "ms": 142.73,
+        "bytes": 13240,
+        "mbps": 0.742
+      },
+      {
+        "intento": 3,
+        "ms": 146.5,
+        "bytes": 13240,
+        "mbps": 0.723
+      }
+    ],
+    "carga": {
+      "c1": {
+        "concurrencia": 1,
+        "solicitudes": 20,
+        "exitosas": 20,
+        "fallidas": 0,
+        "n": 20,
+        "min": 138.64,
+        "max": 267.93,
+        "avg": 153.97,
+        "p95": 177.57,
+        "stddev": 27.5,
+        "duracion_ms": 3080.84,
+        "bytes_totales": 264800,
+        "mbps": 0.688,
+        "rps": 6.49
+      },
+      "c5": {
+        "concurrencia": 5,
+        "solicitudes": 20,
+        "exitosas": 20,
+        "fallidas": 0,
+        "n": 20,
+        "min": 131.03,
+        "max": 440.56,
+        "avg": 193.07,
+        "p95": 411.8,
+        "stddev": 93.96,
+        "duracion_ms": 859.12,
+        "bytes_totales": 264800,
+        "mbps": 2.466,
+        "rps": 23.28
+      },
+      "c10": {
+        "concurrencia": 10,
+        "solicitudes": 20,
+        "exitosas": 20,
+        "fallidas": 0,
+        "n": 20,
+        "min": 131.78,
+        "max": 526.01,
+        "avg": 258.65,
+        "p95": 490.51,
+        "stddev": 134.21,
+        "duracion_ms": 592.23,
+        "bytes_totales": 264800,
+        "mbps": 3.577,
+        "rps": 33.77
+      }
+    },
+    "codigos": {
+      "200 GET /events": {
+        "status": 200,
+        "ms": 135.72,
+        "bytes": 13240
+      },
+      "201 POST /events (admin)": {
+        "status": 201,
+        "ms": 155.38,
+        "bytes": 440,
+        "esperado": 201
+      },
+      "400 POST /events sin description": {
+        "status": 400,
+        "ms": 140.75,
+        "bytes": 117,
+        "esperado": 400
+      },
+      "401 POST /events sin token": {
+        "status": 401,
+        "ms": 138.56,
+        "bytes": 105,
+        "esperado": 401
+      },
+      "404 GET /events/{uuid inexistente}": {
+        "status": 404,
+        "ms": 150.57,
+        "bytes": 115,
+        "esperado": 404
+      },
+      "403 esperado: POST /events con token USER": {
+        "status": 201,
+        "ms": 152.23,
+        "bytes": 442,
+        "esperado": 403,
+        "observado": 201
+      },
+      "403 esperado: GET /users/admin/all con token USER": {
+        "status": 200,
+        "ms": 141.5,
+        "bytes": 257,
+        "esperado": 403
+      },
+      "201 primera inscripción": {
+        "status": 201,
+        "ms": 248.05,
+        "bytes": 181
+      },
+      "409 inscripción duplicada": {
+        "status": 409,
+        "ms": 200.97,
+        "bytes": 83
+      },
+      "204 DELETE /events/{id}": {
+        "status": 204,
+        "ms": 198.98,
+        "bytes": 0,
+        "esperado": 204
+      },
+      "422/400 fecha inválida": {
+        "status": 400,
+        "ms": 200.78,
+        "bytes": 96,
+        "esperado": "400 (class-validator) o 422"
+      }
+    },
+    "sensibilidad": {
+      "login_campos": [
+        "accessToken",
+        "user"
+      ],
+      "login_contiene_password": false,
+      "users_status": 200,
+      "users_contiene_password": false,
+      "users_contiene_pin": false
+    },
+    "idempotencia": {
+      "status1": 201,
+      "status2": 201,
+      "mismoId": false,
+      "id1": "07f29404-2840-409d-820f-648d410609f9",
+      "id2": "7563f5b4-e905-47bf-bdc6-369c6a38bfc0"
+    },
+    "interrupcion": {
+      "aborto": "TimeoutError",
+      "mensaje": "The operation was aborted due to timeout"
+    },
+    "recuperacion": {
+      "status": 200,
+      "ms": 135.68
+    },
+    "escritura_concurrente": [
+      201,
+      201,
+      201,
+      201,
+      201
+    ]
+  },
+  "defectos": [
+    {
+      "id": "DEF-01",
+      "tipo": "Autorización",
+      "componente": "API EventsController",
+      "descripcion": "Un usuario con rol USER puede crear eventos (POST /events). El controlador solo aplica JwtAuthGuard y no valida el rol.",
+      "esperado": 403,
+      "observado": 201,
+      "evidencia": "http_results.json → pruebas.codigos[\"403 esperado: POST /events con token USER\"]"
+    },
+    {
+      "id": "DEF-02",
+      "tipo": "Idempotencia",
+      "componente": "API POST /events",
+      "descripcion": "Dos POST idénticos crean dos eventos distintos: no existe clave de idempotencia ni detección de duplicados.",
+      "esperado": "Un solo registro o 409 en el duplicado",
+      "observado": "201 en ambas solicitudes con ids diferentes",
+      "evidencia": "http_results.json → pruebas.idempotencia"
+    },
+    {
+      "id": "DEF-03",
+      "tipo": "Concurrencia",
+      "componente": "API POST /events",
+      "descripcion": "Cinco solicitudes simultáneas con el mismo cuerpo generan cinco registros duplicados; no hay restricción UNIQUE por título/fecha.",
+      "esperado": "1 registro o rechazo de duplicados",
+      "observado": "5 registros creados",
+      "evidencia": "http_results.json → pruebas.escritura_concurrente"
+    }
+  ],
+  "limpieza": {
+    "intentos": 13,
+    "eliminados": 13,
+    "fallidos": []
+  }
+}
