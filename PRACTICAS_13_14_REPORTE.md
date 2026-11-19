@@ -18,8 +18,8 @@ Las pruebas nuevas están en [`practica13_14_automation_test.dart`](apps/mobile/
 | AUT-04 | Integración | Provider → Service → HTTP → modelo, respuesta exitosa | Aprobada |
 | AUT-05 | Integración | HTTP 500 reflejado como estado de error del Provider | Aprobada |
 | AUT-06 | Persistencia | Inscripción 201 autenticada y clave estable al reintentar; transacción API | Aprobada en pruebas automatizadas |
-| AUT-07 | CI | Ejecución de Flutter analyze/test y Jest en push | Re-ejecución tras corregir el comando de Jest |
-| AUT-08 | CI | Ejecución automática en pull request | Configurada; falta ejecución remota |
+| AUT-07 | CI | Ejecución de Flutter analyze/test y Jest en push | Aprobada en GitHub Actions |
+| AUT-08 | CI | Ejecución automática en pull request | Configurada; no se creó un PR para esta práctica |
 
 La app no guarda inscripciones en el dispositivo: la persistencia pertenece al backend. La prueba Flutter simula el contrato HTTP; la prueba Jest verifica la llamada de escritura dentro de la transacción Prisma, sin conectarse a una base de datos real en esta ejecución. Para validación de base de datos real, consultar las evidencias de la práctica 11.
 
@@ -32,7 +32,8 @@ Ejecución local final del 18 de noviembre de 2026:
 - API: **57 pruebas aprobadas, 0 fallidas**, cinco suites, 4.098 s en la ejecución final local.
 - Tiempo acumulado aproximado de estos comandos: **10.2 s**. Los comandos se ejecutaron por separado y sus tiempos individuales se reportan arriba.
 - Durante la primera ejecución falló una expectativa antigua que exigía un mensaje genérico para errores con `message` en lista. Se actualizó la prueba para verificar los detalles del servidor; la repetición final pasó. No quedan errores conocidos de estas validaciones.
-- El primer push ejecutó correctamente el job Flutter, pero el job API falló porque `pnpm` pasó un `--` extra a Jest y este interpretó `--runInBand` como patrón de archivo. Se quitó el separador redundante; el comando corregido pasó localmente (57/57). El push siguiente volverá a validar ambos jobs.
+- El primer push ejecutó correctamente el job Flutter, pero el job API falló porque `pnpm` pasó un `--` extra a Jest y este interpretó `--runInBand` como patrón de archivo. Se quitó el separador redundante y se comprobó localmente.
+- En el segundo push, ambos jobs de GitHub Actions terminaron **success**: Flutter analyze y **70 pruebas aprobadas**; API **57 pruebas aprobadas / 5 suites** (1.439 s). Evidencia: [ejecución 2 de Mobile Flutter CI](https://github.com/Santi-Gon/musica-masvida/actions/runs/44454136577), commit `56b01f0`.
 
 Reproducción desde la raíz:
 
@@ -55,6 +56,6 @@ la práctica 12. GitHub Actions ejecutará la suite completa en un runner limpio
 
 ## CI y conclusión
 
-El workflow [`flutter-mobile-ci.yml`](.github/workflows/flutter-mobile-ci.yml) ejecuta análisis y pruebas Flutter, además de Jest para el API, en cada `push` y `pull_request`. El primer push confirmó el job Flutter y reveló el error de argumentos de Jest descrito arriba; se corrigió y se publicó un segundo push. La ejecución final queda pendiente de confirmación en **Actions**. AUT-08 está configurada, pero no se creó un pull request en esta práctica.
+El workflow [`flutter-mobile-ci.yml`](.github/workflows/flutter-mobile-ci.yml) ejecuta análisis y pruebas Flutter, además de Jest para el API, en cada `push` y `pull_request`. Tras corregir el argumento de Jest, la segunda ejecución en GitHub pasó en ambos jobs; la evidencia enlazada arriba conserva el estado y los resultados. AUT-08 está configurada, pero no se creó un pull request en esta práctica.
 
 La automatización conserva la calidad al convertir contratos y errores conocidos en verificaciones repetibles. Así, cambios en el parseo, la comunicación o la escritura remota pueden detectarse antes de integrar una modificación, y el pipeline entrega una señal común a cada integrante del equipo.
