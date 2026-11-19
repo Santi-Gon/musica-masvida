@@ -58,4 +58,4 @@ jobs:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/musica_masvida?schema=public
 
       - name: Run API unit tests
-        run: pnpm --filter api test -- --runInBand
+        run: pnpm --filter api test --runInBand
