@@ -27,6 +27,7 @@ model Event {
   updatedAt   DateTime @updatedAt
   registrations EventRegistration[]
 
+  @@index([isActive, date])
   @@map("events")
 }
 
@@ -112,6 +113,24 @@ model PushSubscription {
   createdAt DateTime @default(now())
 
   @@map("push_subscriptions")
+}
+
+// Claves de idempotencia para escrituras críticas (ej. inscripción a eventos).
+// Permite reintentar una operación sin crear duplicados.
+model IdempotencyKey {
+  id          String    @id @default(uuid())
+  key         String    @unique
+  scope       String
+  payloadHash String
+  status      String    // pending | completed
+  httpStatus  Int?
+  response    Json?
+  createdAt   DateTime  @default(now())
+  expiresAt   DateTime
+
+  @@index([expiresAt])
+  @@index([scope, status])
+  @@map("idempotency_keys")
 }
 
 // ========================

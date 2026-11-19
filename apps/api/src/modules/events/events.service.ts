@@ -5,28 +5,47 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../../common/prisma.service';
+import { CacheService } from '../../common/cache.service';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
 import { NotificationsService } from '../notifications/notifications.service';
 import { Prisma } from '@prisma/client';
+import { createHash } from 'node:crypto';
+
+const CACHE_KEY_ALL = 'events:all';
+const CACHE_KEY_UPCOMING = 'events:upcoming';
+const DEFAULT_CACHE_TTL_MS = 15000;
 
 @Injectable()
 export class EventsService {
+  private readonly cacheTtlMs = Number(
+    process.env.EVENTS_CACHE_TTL_MS ?? DEFAULT_CACHE_TTL_MS,
+  );
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly notificationsService: NotificationsService,
+    private readonly cache: CacheService = new CacheService(),
   ) {}
 
   async findAll() {
-    return this.prisma.event.findMany({
+    const cached = this.cache.get<unknown[]>(CACHE_KEY_ALL);
+    if (cached) return cached;
+
+    const events = await this.prisma.event.findMany({
       where: { isActive: true },
       orderBy: { date: 'asc' },
     });
+    this.cache.set(CACHE_KEY_ALL, events, this.cacheTtlMs);
+    return events;
   }
 
   // Próximos 3 eventos activos desde hoy — usado por el smartwatch
   async findUpcoming() {
-    return this.prisma.event.findMany({
+    const cached = this.cache.get<unknown[]>(CACHE_KEY_UPCOMING);
+    if (cached) return cached;
+
+    const events = await this.prisma.event.findMany({
       where: {
         isActive: true,
         date: { gte: new Date() },
@@ -43,6 +62,16 @@ export class EventsService {
         capacity: true,
       },
     });
+    this.cache.set(CACHE_KEY_UPCOMING, events, this.cacheTtlMs);
+    return events;
+  }
+
+  cacheStats() {
+    return { ttlMs: this.cacheTtlMs, ...this.cache.stats() };
+  }
+
+  private invalidateEventCaches() {
+    this.cache.del(CACHE_KEY_ALL, CACHE_KEY_UPCOMING);
   }
 
   async findAllAdmin() {
@@ -66,6 +95,8 @@ export class EventsService {
       },
     });
 
+    this.invalidateEventCaches();
+
     // Enviar notificación a todos de que hay un nuevo evento
     // No esperamos con await para que no bloquee la respuesta HTTP
     this.notificationsService.sendNotificationToAll(
@@ -79,18 +110,22 @@ export class EventsService {
 
   async update(id: string, dto: UpdateEventDto) {
     await this.findOne(id);
-    return this.prisma.event.update({
+    const updated = await this.prisma.event.update({
       where: { id },
       data: {
         ...dto,
         date: dto.date ? new Date(dto.date) : undefined,
       },
     });
+    this.invalidateEventCaches();
+    return updated;
   }
 
   async remove(id: string) {
     await this.findOne(id);
-    return this.prisma.event.delete({ where: { id } });
+    const removed = await this.prisma.event.delete({ where: { id } });
+    this.invalidateEventCaches();
+    return removed;
   }
 
   async registrationStatus(eventId: string, userId: string, role: string) {
@@ -106,48 +141,135 @@ export class EventsService {
     return { registered: registration !== null };
   }
 
-  async register(eventId: string, userId: string, role: string) {
+  async register(
+    eventId: string,
+    userId: string,
+    role: string,
+    idempotencyKey?: string,
+  ) {
     if (role !== 'USER') {
       throw new ForbiddenException('Solo los alumnos pueden inscribirse a eventos');
     }
 
+    const payloadHash = createHash('sha256')
+      .update(`${eventId}:${userId}`)
+      .digest('hex');
+
     try {
       return await this.prisma.$transaction(
         async (transaction) => {
-          const event = await transaction.event.findUnique({
-            where: { id: eventId },
+          // 1. Idempotencia: reservar clave o devolver respuesta previa.
+          if (idempotencyKey) {
+            try {
+              await transaction.idempotencyKey.create({
+                data: {
+                  key: idempotencyKey,
+                  scope: 'event-registration',
+                  payloadHash,
+                  status: 'pending',
+                  expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+                },
+              });
+            } catch (error) {
+              if (
+                error instanceof Prisma.PrismaClientKnownRequestError &&
+                error.code === 'P2002'
+              ) {
+                const existing = await transaction.idempotencyKey.findUnique({
+                  where: { key: idempotencyKey },
+                });
+                if (existing?.status === 'completed' && existing.response) {
+                  if (existing.payloadHash !== payloadHash) {
+                    throw new ConflictException(
+                      'Clave de idempotencia reutilizada con otros parámetros',
+                    );
+                  }
+                  return existing.response;
+                }
+                throw new ConflictException(
+                  'Operación en proceso; inténtalo de nuevo',
+                );
+              }
+              throw error;
+            }
+          }
+
+          // 2. Evento activo y conteo actual de inscripciones en una sola consulta.
+          const event = await transaction.event.findFirst({
+            where: { id: eventId, isActive: true },
+            include: { _count: { select: { registrations: true } } },
           });
-          if (!event || !event.isActive) {
+          if (!event) {
             throw new NotFoundException('El evento no está disponible');
           }
 
+          // 3. Usuario activo.
           const user = await transaction.user.findUnique({
             where: { id: userId },
             select: { isActive: true },
           });
           if (!user?.isActive) {
-            throw new ForbiddenException('La cuenta no está disponible para inscribirse');
+            throw new ForbiddenException(
+              'La cuenta no está disponible para inscribirse',
+            );
           }
 
-          const existingRegistration = await transaction.eventRegistration.findUnique({
-            where: { eventId_userId: { eventId, userId } },
-            select: { id: true },
-          });
+          // 4. Inscripción existente.
+          const existingRegistration =
+            await transaction.eventRegistration.findUnique({
+              where: { eventId_userId: { eventId, userId } },
+              select: {
+                id: true,
+                eventId: true,
+                userId: true,
+                createdAt: true,
+              },
+            });
           if (existingRegistration) {
+            if (idempotencyKey) {
+              await transaction.idempotencyKey.update({
+                where: { key: idempotencyKey },
+                data: {
+                  status: 'completed',
+                  httpStatus: 201,
+                  response: existingRegistration as unknown as Prisma.InputJsonValue,
+                },
+              });
+              return existingRegistration;
+            }
             throw new ConflictException('Ya estás inscrito en este evento');
           }
 
-          const registrationCount = await transaction.eventRegistration.count({
-            where: { eventId },
-          });
-          if (registrationCount >= event.capacity) {
-            throw new ConflictException('El evento ya no tiene lugares disponibles');
+          // 5. Capacidad.
+          if (event._count.registrations >= event.capacity) {
+            throw new ConflictException(
+              'El evento ya no tiene lugares disponibles',
+            );
           }
 
-          return transaction.eventRegistration.create({
+          // 6. Crear inscripción.
+          const created = await transaction.eventRegistration.create({
             data: { eventId, userId },
-            select: { id: true, eventId: true, userId: true, createdAt: true },
+            select: {
+              id: true,
+              eventId: true,
+              userId: true,
+              createdAt: true,
+            },
           });
+
+          if (idempotencyKey) {
+            await transaction.idempotencyKey.update({
+              where: { key: idempotencyKey },
+              data: {
+                status: 'completed',
+                httpStatus: 201,
+                response: created as unknown as Prisma.InputJsonValue,
+              },
+            });
+          }
+
+          return created;
         },
         { isolationLevel: Prisma.TransactionIsolationLevel.Serializable },
       );
@@ -162,7 +284,9 @@ export class EventsService {
         error instanceof Prisma.PrismaClientKnownRequestError &&
         error.code === 'P2034'
       ) {
-        throw new ConflictException('El último lugar acaba de ser ocupado; actualiza e inténtalo de nuevo');
+        throw new ConflictException(
+          'El último lugar acaba de ser ocupado; actualiza e inténtalo de nuevo',
+        );
       }
       throw error;
     }

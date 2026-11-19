@@ -38,7 +38,9 @@ class EventProvider extends ChangeNotifier {
 
   /// Carga los próximos eventos desde la API.
   /// Notifica a los listeners en cada cambio de estado.
-  Future<void> fetchUpcomingEvents() async {
+  ///
+  /// [forceRefresh] ignora la caché TTL del servicio (pull-to-refresh).
+  Future<void> fetchUpcomingEvents({bool forceRefresh = false}) async {
     if (_status == EventStatus.loading) return;
 
     _status = EventStatus.loading;
@@ -46,7 +48,9 @@ class EventProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      _events = await _eventService.getUpcomingEvents();
+      _events = await _eventService.getUpcomingEvents(
+        forceRefresh: forceRefresh,
+      );
       _status = EventStatus.loaded;
     } catch (e) {
       _status = EventStatus.error;
@@ -59,7 +63,8 @@ class EventProvider extends ChangeNotifier {
   /// Permite refrescar los datos limpiando el estado anterior.
   Future<void> refresh() async {
     _events = [];
-    await fetchUpcomingEvents();
+    _eventService.clearCache();
+    await fetchUpcomingEvents(forceRefresh: true);
   }
 
   Future<bool> isRegistered(String eventId, String token) =>
@@ -71,7 +76,9 @@ class EventProvider extends ChangeNotifier {
   String _parseError(Object e) {
     final raw = e.toString();
     if (raw.contains('SocketException') ||
+        raw.contains('ClientException') ||
         raw.contains('Connection refused') ||
+        raw.contains('connection refused') ||
         raw.contains('Failed host lookup')) {
       return 'No se pudo conectar al servidor.\nVerifica que la API esté corriendo.';
     }

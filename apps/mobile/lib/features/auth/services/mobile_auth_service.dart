@@ -18,16 +18,36 @@ class MobileAuthService {
         )
         .timeout(const Duration(seconds: 10));
 
-    final data = jsonDecode(response.body) as Map<String, dynamic>;
     if (response.statusCode != 200) {
-      final message = data['message'];
-      throw Exception(message is String ? message : 'No se pudo iniciar sesión');
+      throw Exception(_errorMessage(response));
     }
 
+    final decoded = jsonDecode(response.body);
+    if (decoded is! Map<String, dynamic>) {
+      throw const FormatException(
+        'La respuesta de inicio de sesión no es válida',
+      );
+    }
+
+    final data = decoded;
     final token = data['accessToken'];
     if (token is! String || token.isEmpty) {
       throw Exception('La respuesta del servidor no contiene un token válido');
     }
     return token;
+  }
+
+  String _errorMessage(http.Response response) {
+    try {
+      final decoded = jsonDecode(response.body);
+      if (decoded is Map<String, dynamic>) {
+        final message = decoded['message'];
+        if (message is String && message.isNotEmpty) return message;
+        if (message is List) return message.join('\n');
+      }
+    } on FormatException {
+      return 'No se pudo iniciar sesión (HTTP ${response.statusCode})';
+    }
+    return 'No se pudo iniciar sesión (HTTP ${response.statusCode})';
   }
 }

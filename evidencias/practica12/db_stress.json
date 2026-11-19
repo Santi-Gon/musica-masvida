@@ -1,0 +1,197 @@
+{
+  "fecha": "2026-11-18T23:22:24.953Z",
+  "host": "ep-blue-pond-be0gqn6l.c-9.us-east-2.aws.neon.tech",
+  "filas": 50000,
+  "antes": {
+    "q1_id": {
+      "runs": 10,
+      "min": 51.33,
+      "avg": 57.04,
+      "max": 68.17,
+      "filas": 1,
+      "bytes": 441,
+      "kbps": 61.85
+    },
+    "q2_pequeno": {
+      "runs": 5,
+      "min": 65.27,
+      "avg": 80,
+      "max": 127.13,
+      "filas": 100,
+      "bytes": 43525,
+      "kbps": 4352.29
+    },
+    "q3_grande": {
+      "runs": 3,
+      "min": 727.63,
+      "avg": 1278.12,
+      "max": 2300.35,
+      "filas": 20000,
+      "bytes": 8805501,
+      "kbps": 55115.23
+    },
+    "q3_proyeccion": {
+      "runs": 3,
+      "min": 235.49,
+      "avg": 254.83,
+      "max": 275.65,
+      "filas": 20000,
+      "bytes": 2794607,
+      "kbps": 87730.99
+    },
+    "q4_filtro": {
+      "runs": 5,
+      "min": 61.97,
+      "avg": 64.49,
+      "max": 67.44,
+      "filas": 1000,
+      "bytes": 89001,
+      "kbps": 11040.43
+    },
+    "q5_repetidas": {
+      "consultas": 50,
+      "totalMs": 2597.64
+    },
+    "plan_q2": "Limit  (cost=4005.37..4005.62 rows=100 width=271) (actual time=18.754..18.770 rows=100.00 loops=1)\n  Buffers: shared hit=1786\n  ->  Sort  (cost=4005.37..4117.84 rows=44987 width=271) (actual time=18.752..18.761 rows=100.00 loops=1)\n        Sort Key: date\n        Sort Method: top-N heapsort  Memory: 75kB\n        Buffers: shared hit=1786\n        ->  Seq Scan on events_bench  (cost=0.00..2286.00 rows=44987 width=271) (actual time=0.015..10.328 rows=45000.00 loops=1)\n              Filter: \"isActive\"\n              Rows Removed by Filter: 5000\n              Buffers: shared hit=1786\nPlanning Time: 0.072 ms\nExecution Time: 18.797 ms",
+    "plan_q3": "Limit  (cost=8983.60..11263.02 rows=20000 width=271) (actual time=31.034..41.980 rows=20000.00 loops=1)\n  Buffers: shared hit=1823, temp read=1213 written=1626\n  ->  Gather Merge  (cost=8983.60..14682.13 rows=50000 width=271) (actual time=31.032..40.383 rows=20000.00 loops=1)\n        Workers Planned: 1\n        Workers Launched: 1\n        Buffers: shared hit=1823, temp read=1213 written=1626\n        ->  Sort  (cost=7983.59..8057.12 rows=29412 width=271) (actual time=25.567..26.739 rows=10105.00 loops=2)\n              Sort Key: date\n              Sort Method: external merge  Disk: 7824kB\n              Buffers: shared hit=1823, temp read=1213 written=1626\n              Worker 0:  Sort Method: external merge  Disk: 5136kB\n              ->  Parallel Seq Scan on events_bench  (cost=0.00..2080.12 rows=29412 width=271) (actual time=0.010..5.879 rows=25000.00 loops=2)\n                    Buffers: shared hit=1786\nPlanning Time: 0.064 ms\nExecution Time: 43.911 ms",
+    "plan_q4": "Limit  (cost=3126.92..3129.42 rows=1000 width=43) (actual time=8.614..8.741 rows=1000.00 loops=1)\n  Buffers: shared hit=1786\n  ->  Sort  (cost=3126.92..3136.76 rows=3938 width=43) (actual time=8.613..8.660 rows=1000.00 loops=1)\n        Sort Key: date\n        Sort Method: top-N heapsort  Memory: 119kB\n        Buffers: shared hit=1786\n        ->  Seq Scan on events_bench  (cost=0.00..2911.00 rows=3938 width=43) (actual time=2.592..8.085 rows=3888.00 loops=1)\n              Filter: (\"isActive\" AND (date >= now()) AND (date < (now() + '30 days'::interval)))\n              Rows Removed by Filter: 46112\n              Buffers: shared hit=1786\nPlanning Time: 0.091 ms\nExecution Time: 8.808 ms"
+  },
+  "despues": {
+    "q1_id": {
+      "runs": 10,
+      "min": 50.54,
+      "avg": 51.73,
+      "max": 55.9,
+      "filas": 1,
+      "bytes": 441,
+      "kbps": 68.21
+    },
+    "q2_pequeno": {
+      "runs": 5,
+      "min": 51.79,
+      "avg": 53.88,
+      "max": 56.68,
+      "filas": 100,
+      "bytes": 43525,
+      "kbps": 6462.25
+    },
+    "q3_grande": {
+      "runs": 3,
+      "min": 651.83,
+      "avg": 884.62,
+      "max": 1294.75,
+      "filas": 20000,
+      "bytes": 8805501,
+      "kbps": 79632.16
+    },
+    "q3_proyeccion": {
+      "runs": 3,
+      "min": 267.51,
+      "avg": 307.85,
+      "max": 377.57,
+      "filas": 20000,
+      "bytes": 2794607,
+      "kbps": 72621.82
+    },
+    "q4_filtro": {
+      "runs": 5,
+      "min": 53.46,
+      "avg": 60.84,
+      "max": 69.8,
+      "filas": 1000,
+      "bytes": 89001,
+      "kbps": 11702.4
+    },
+    "q5_repetidas": {
+      "consultas": 50,
+      "totalMs": 2718.52
+    },
+    "plan_q2": "Limit  (cost=0.29..7.16 rows=100 width=271) (actual time=0.021..0.066 rows=100.00 loops=1)\n  Buffers: shared hit=6\n  ->  Index Scan using events_bench_date_idx on events_bench  (cost=0.29..3095.29 rows=45020 width=271) (actual time=0.020..0.058 rows=100.00 loops=1)\n        Filter: \"isActive\"\n        Rows Removed by Filter: 11\n        Index Searches: 1\n        Buffers: shared hit=6\nPlanning Time: 0.064 ms\nExecution Time: 0.084 ms",
+    "plan_q3": "Limit  (cost=0.29..1238.29 rows=20000 width=271) (actual time=0.019..5.894 rows=20000.00 loops=1)\n  Buffers: shared hit=771\n  ->  Index Scan using events_bench_date_idx on events_bench  (cost=0.29..3095.29 rows=50000 width=271) (actual time=0.018..4.359 rows=20000.00 loops=1)\n        Index Searches: 1\n        Buffers: shared hit=771\nPlanning Time: 0.070 ms\nExecution Time: 6.784 ms",
+    "plan_q4": "Limit  (cost=0.30..75.64 rows=1000 width=43) (actual time=0.039..0.350 rows=1000.00 loops=1)\n  Buffers: shared hit=46\n  ->  Index Scan using events_bench_date_idx on events_bench  (cost=0.30..289.60 rows=3840 width=43) (actual time=0.038..0.272 rows=1000.00 loops=1)\n        Index Cond: ((date >= now()) AND (date < (now() + '30 days'::interval)))\n        Filter: \"isActive\"\n        Rows Removed by Filter: 111\n        Index Searches: 1\n        Buffers: shared hit=46\nPlanning Time: 0.096 ms\nExecution Time: 0.411 ms"
+  },
+  "concurrencia": {
+    "atomic": {
+      "clientes": 20,
+      "updates": 100,
+      "totalMs": 691.9,
+      "contadorFinal": 100,
+      "esperado": 100,
+      "correcto": true
+    },
+    "lost_update": {
+      "clientes": 20,
+      "updates": 100,
+      "totalMs": 665.97,
+      "contadorFinal": 5,
+      "esperado": 100,
+      "perdidas": 95
+    },
+    "lock": {
+      "esperaMs": 1117.29,
+      "locksNoOtorgados": 1,
+      "bloqueoDetectado": true
+    },
+    "unique": {
+      "intentos": 20,
+      "insertados": 1,
+      "conflictos": 19,
+      "codigos": [
+        "23505",
+        "23505",
+        "23505",
+        "23505",
+        "23505",
+        "23505",
+        "23505",
+        "23505",
+        "23505",
+        "23505",
+        "23505",
+        "23505",
+        "23505",
+        "23505",
+        "OK",
+        "23505",
+        "23505",
+        "23505",
+        "23505",
+        "23505"
+      ],
+      "correcto": true
+    },
+    "integridad": {
+      "filasTotales": 50000,
+      "filasEsperadas": 50000,
+      "correcto": true
+    }
+  },
+  "optimizacion": {
+    "indices": [
+      "events_bench_active_date_idx (\"isActive\", date)",
+      "events_bench_date_idx (date)"
+    ],
+    "creacionMs": 299.31
+  },
+  "comparativa": {
+    "q2_ms": {
+      "antes": 80,
+      "despues": 53.88,
+      "mejoraPct": 48.48
+    },
+    "q3_ms": {
+      "antes": 1278.12,
+      "despues": 884.62,
+      "mejoraPct": 44.48
+    },
+    "q3_bytes": {
+      "antes": 8805501,
+      "despues": 2794607
+    },
+    "q4_ms": {
+      "antes": 64.49,
+      "despues": 60.84,
+      "mejoraPct": 6
+    }
+  }
+}

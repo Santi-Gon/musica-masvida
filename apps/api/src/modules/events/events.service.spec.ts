@@ -7,14 +7,13 @@ import { EventsService } from './events.service';
 describe('EventsService registration', () => {
   const transaction = {
     event: {
-      findUnique: jest.fn(),
+      findFirst: jest.fn(),
     },
     user: {
       findUnique: jest.fn(),
     },
     eventRegistration: {
       findUnique: jest.fn(),
-      count: jest.fn(),
       create: jest.fn(),
     },
   };
@@ -30,14 +29,14 @@ describe('EventsService registration', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     prisma.$transaction.mockImplementation((callback) => callback(transaction));
-    transaction.event.findUnique.mockResolvedValue({
+    transaction.event.findFirst.mockResolvedValue({
       id: 'event-1',
       isActive: true,
       capacity: 2,
+      _count: { registrations: 0 },
     });
     transaction.user.findUnique.mockResolvedValue({ isActive: true });
     transaction.eventRegistration.findUnique.mockResolvedValue(null);
-    transaction.eventRegistration.count.mockResolvedValue(0);
     transaction.eventRegistration.create.mockResolvedValue({ id: 'registration-1' });
   });
 
@@ -64,7 +63,12 @@ describe('EventsService registration', () => {
   });
 
   it('blocks enrollment when all places are occupied', async () => {
-    transaction.eventRegistration.count.mockResolvedValue(2);
+    transaction.event.findFirst.mockResolvedValue({
+      id: 'event-1',
+      isActive: true,
+      capacity: 2,
+      _count: { registrations: 2 },
+    });
 
     await expect(
       service.register('event-1', 'user-1', 'USER'),

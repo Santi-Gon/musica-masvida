@@ -68,6 +68,14 @@ flutter test
 flutter analyze
 ```
 
+### Prácticas 13 y 14 — Automatización y CI
+
+Las pruebas de lógica, integración y resiliencia están en `test/`. El workflow
+`.github/workflows/flutter-mobile-ci.yml` ejecuta `flutter analyze`, `flutter test`
+y las pruebas unitarias del API en cada push y pull request. La matriz AUT-01…AUT-08
+y los resultados locales están documentados en
+[`PRACTICAS_13_14_REPORTE.md`](../../PRACTICAS_13_14_REPORTE.md).
+
 Desde la raíz:
 
 ```powershell

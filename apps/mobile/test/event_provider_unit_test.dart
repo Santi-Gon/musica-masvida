@@ -13,13 +13,20 @@ class MockEventService implements EventService {
   bool get useMock => false;
 
   @override
-  Future<List<UpcomingEvent>> getUpcomingEvents() async {
+  Future<List<UpcomingEvent>> getUpcomingEvents({bool forceRefresh = false}) async {
     callCount++;
     if (exceptionToThrow != null) {
       throw exceptionToThrow!;
     }
     return responseData ?? [];
   }
+
+  @override
+  Map<String, int> get metrics =>
+      {'peticionesHttp': callCount, 'aciertosCache': 0, 'reintentos': 0};
+
+  @override
+  void clearCache() {}
 
   @override
   Future<bool> isRegistered(String eventId, String token) async => false;

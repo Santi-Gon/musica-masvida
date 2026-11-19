@@ -1,0 +1,210 @@
+{
+  "fecha": "2026-11-18T23:23:28.544Z",
+  "etiqueta": "antes_local",
+  "base": "http://localhost:3000/api/v1",
+  "niveles": [
+    1,
+    5,
+    10,
+    25
+  ],
+  "lectura": {
+    "solicitudesPorNivel": 60,
+    "niveles": {
+      "c1": {
+        "concurrencia": 1,
+        "solicitudes": 60,
+        "exitosas": 60,
+        "errores": 0,
+        "errorPct": 0,
+        "n": 60,
+        "min": 53.33,
+        "avg": 61.9,
+        "p90": 66.79,
+        "p95": 69.01,
+        "max": 89.8,
+        "stddev": 6.16,
+        "duracionMs": 3715.79,
+        "rps": 16.15,
+        "bytesTotales": 30180,
+        "mbps": 0.06,
+        "codigos": {
+          "200": 60
+        },
+        "muestraErrores": []
+      },
+      "c5": {
+        "concurrencia": 5,
+        "solicitudes": 60,
+        "exitosas": 60,
+        "errores": 0,
+        "errorPct": 0,
+        "n": 60,
+        "min": 54.22,
+        "avg": 63.9,
+        "p90": 72.99,
+        "p95": 75.23,
+        "max": 76.38,
+        "stddev": 6.13,
+        "duracionMs": 803.26,
+        "rps": 74.7,
+        "bytesTotales": 30180,
+        "mbps": 0.3,
+        "codigos": {
+          "200": 60
+        },
+        "muestraErrores": []
+      },
+      "c10": {
+        "concurrencia": 10,
+        "solicitudes": 60,
+        "exitosas": 60,
+        "errores": 0,
+        "errorPct": 0,
+        "n": 60,
+        "min": 53.13,
+        "avg": 90.68,
+        "p90": 73.53,
+        "p95": 388.65,
+        "max": 441.13,
+        "stddev": 96.53,
+        "duracionMs": 563.83,
+        "rps": 106.42,
+        "bytesTotales": 30180,
+        "mbps": 0.43,
+        "codigos": {
+          "200": 60
+        },
+        "muestraErrores": []
+      },
+      "c25": {
+        "concurrencia": 25,
+        "solicitudes": 60,
+        "exitosas": 60,
+        "errores": 0,
+        "errorPct": 0,
+        "n": 60,
+        "min": 58.16,
+        "avg": 120.12,
+        "p90": 155.95,
+        "p95": 160.61,
+        "max": 166.78,
+        "stddev": 30.75,
+        "duracionMs": 344.34,
+        "rps": 174.25,
+        "bytesTotales": 30180,
+        "mbps": 0.7,
+        "codigos": {
+          "200": 60
+        },
+        "muestraErrores": []
+      }
+    }
+  },
+  "escritura": {
+    "solicitudesPorNivel": 20,
+    "niveles": {
+      "c1": {
+        "concurrencia": 1,
+        "solicitudes": 20,
+        "exitosas": 20,
+        "errores": 0,
+        "errorPct": 0,
+        "n": 20,
+        "min": 58.32,
+        "avg": 64.72,
+        "p90": 71.67,
+        "p95": 73.44,
+        "max": 74.37,
+        "stddev": 4.68,
+        "duracionMs": 1295.66,
+        "rps": 15.44,
+        "bytesTotales": 7360,
+        "mbps": 0.05,
+        "codigos": {
+          "201": 20
+        },
+        "muestraErrores": []
+      },
+      "c5": {
+        "concurrencia": 5,
+        "solicitudes": 20,
+        "exitosas": 20,
+        "errores": 0,
+        "errorPct": 0,
+        "n": 20,
+        "min": 55.46,
+        "avg": 66.73,
+        "p90": 75.02,
+        "p95": 75.99,
+        "max": 76.76,
+        "stddev": 6.34,
+        "duracionMs": 277.97,
+        "rps": 71.95,
+        "bytesTotales": 7360,
+        "mbps": 0.21,
+        "codigos": {
+          "201": 20
+        },
+        "muestraErrores": []
+      },
+      "c10": {
+        "concurrencia": 10,
+        "solicitudes": 20,
+        "exitosas": 20,
+        "errores": 0,
+        "errorPct": 0,
+        "n": 20,
+        "min": 59.57,
+        "avg": 86.24,
+        "p90": 102.32,
+        "p95": 112.37,
+        "max": 113.26,
+        "stddev": 19.04,
+        "duracionMs": 227.05,
+        "rps": 88.09,
+        "bytesTotales": 7380,
+        "mbps": 0.26,
+        "codigos": {
+          "201": 20
+        },
+        "muestraErrores": []
+      },
+      "c25": {
+        "concurrencia": 25,
+        "solicitudes": 20,
+        "exitosas": 20,
+        "errores": 0,
+        "errorPct": 0,
+        "n": 20,
+        "min": 71.19,
+        "avg": 118.47,
+        "p90": 166.41,
+        "p95": 166.83,
+        "max": 167.22,
+        "stddev": 33.5,
+        "duracionMs": 170.02,
+        "rps": 117.63,
+        "bytesTotales": 7380,
+        "mbps": 0.35,
+        "codigos": {
+          "201": 20
+        },
+        "muestraErrores": []
+      }
+    }
+  },
+  "calentamiento": {
+    "status": 200,
+    "ms": 112.44
+  },
+  "login": {
+    "status": 200,
+    "ms": 126.21,
+    "token": true
+  },
+  "limpieza": {
+    "encontrados": 97,
+    "eliminados": 97
+  }
+}

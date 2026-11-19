@@ -15,11 +15,10 @@ import { EventsService } from './events.service';
  */
 describe('EventsService (white box)', () => {
   const tx = {
-    event: { findUnique: jest.fn() },
+    event: { findFirst: jest.fn() },
     user: { findUnique: jest.fn() },
     eventRegistration: {
       findUnique: jest.fn(),
-      count: jest.fn(),
       create: jest.fn(),
     },
   };
@@ -56,10 +55,12 @@ describe('EventsService (white box)', () => {
       notifications as unknown as NotificationsService,
     );
     prisma.$transaction.mockImplementation((cb: any) => cb(tx));
-    tx.event.findUnique.mockResolvedValue(activeEvent);
+    tx.event.findFirst.mockResolvedValue({
+      ...activeEvent,
+      _count: { registrations: 0 },
+    });
     tx.user.findUnique.mockResolvedValue({ isActive: true });
     tx.eventRegistration.findUnique.mockResolvedValue(null);
-    tx.eventRegistration.count.mockResolvedValue(0);
     tx.eventRegistration.create.mockResolvedValue({ id: 'reg-1' });
     notifications.sendNotificationToAll.mockResolvedValue(undefined);
   });
@@ -232,14 +233,14 @@ describe('EventsService (white box)', () => {
   });
 
   it('register lanza 404 si el evento no existe', async () => {
-    tx.event.findUnique.mockResolvedValue(null);
+    tx.event.findFirst.mockResolvedValue(null);
     await expect(service.register('event-1', 'u1', 'USER')).rejects.toBeInstanceOf(
       NotFoundException,
     );
   });
 
   it('register lanza 404 si el evento está inactivo', async () => {
-    tx.event.findUnique.mockResolvedValue({ ...activeEvent, isActive: false });
+    tx.event.findFirst.mockResolvedValue(null);
     await expect(service.register('event-1', 'u1', 'USER')).rejects.toBeInstanceOf(
       NotFoundException,
     );
@@ -264,7 +265,10 @@ describe('EventsService (white box)', () => {
   });
 
   it('register rechaza cuando se alcanzó la capacidad (409)', async () => {
-    tx.eventRegistration.count.mockResolvedValue(2);
+    tx.event.findFirst.mockResolvedValue({
+      ...activeEvent,
+      _count: { registrations: 2 },
+    });
     await expect(service.register('event-1', 'u1', 'USER')).rejects.toBeInstanceOf(
       ConflictException,
     );

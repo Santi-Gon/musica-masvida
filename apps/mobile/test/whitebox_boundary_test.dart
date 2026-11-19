@@ -18,7 +18,8 @@ class _FakeEventService extends EventService {
   final Future<List<UpcomingEvent>> Function() handler;
 
   @override
-  Future<List<UpcomingEvent>> getUpcomingEvents() => handler();
+  Future<List<UpcomingEvent>> getUpcomingEvents({bool forceRefresh = false}) =>
+      handler();
 }
 
 const _eventJson = {
@@ -32,7 +33,9 @@ const _eventJson = {
 void main() {
   group('EventService - manejo de excepciones y códigos', () {
     test('useMock evita cualquier llamada HTTP y devuelve 3 eventos', () async {
-      final client = MockClient((_) async => throw StateError('no debe llamarse'));
+      final client = MockClient(
+        (_) async => throw StateError('no debe llamarse'),
+      );
       final service = EventService(client: client, useMock: true);
 
       final events = await service.getUpcomingEvents();
@@ -41,11 +44,13 @@ void main() {
     });
 
     test('200 con JSON válido mapea la lista', () async {
-      final client = MockClient((_) async => http.Response(
-            jsonEncode([_eventJson]),
-            200,
-            headers: {'content-type': 'application/json'},
-          ));
+      final client = MockClient(
+        (_) async => http.Response(
+          jsonEncode([_eventJson]),
+          200,
+          headers: {'content-type': 'application/json'},
+        ),
+      );
       final service = EventService(client: client);
 
       final events = await service.getUpcomingEvents();
@@ -60,34 +65,51 @@ void main() {
 
       await expectLater(
         service.getUpcomingEvents(),
-        throwsA(isA<Exception>().having(
-          (e) => e.toString(),
-          'mensaje',
-          contains('Código: 500'),
-        )),
+        throwsA(
+          isA<Exception>().having(
+            (e) => e.toString(),
+            'mensaje',
+            contains('Código: 500'),
+          ),
+        ),
       );
     });
 
-    test('200 con cuerpo no JSON propaga FormatException (rama no controlada)', () async {
-      final client = MockClient((_) async => http.Response('<html>error</html>', 200));
-      final service = EventService(client: client);
+    test(
+      '200 con cuerpo no JSON propaga FormatException (rama no controlada)',
+      () async {
+        final client = MockClient(
+          (_) async => http.Response('<html>error</html>', 200),
+        );
+        final service = EventService(client: client);
 
-      await expectLater(service.getUpcomingEvents(), throwsA(isA<FormatException>()));
-    });
+        await expectLater(
+          service.getUpcomingEvents(),
+          throwsA(isA<FormatException>()),
+        );
+      },
+    );
 
     test('timeout de red propaga TimeoutException', () async {
       final client = MockClient((_) async => throw TimeoutException('sin red'));
       final service = EventService(client: client);
 
-      await expectLater(service.getUpcomingEvents(), throwsA(isA<TimeoutException>()));
+      await expectLater(
+        service.getUpcomingEvents(),
+        throwsA(isA<TimeoutException>()),
+      );
     });
 
     test('isRegistered devuelve true/false según el cuerpo', () async {
       final serviceTrue = EventService(
-        client: MockClient((_) async => http.Response(jsonEncode({'registered': true}), 200)),
+        client: MockClient(
+          (_) async => http.Response(jsonEncode({'registered': true}), 200),
+        ),
       );
       final serviceFalse = EventService(
-        client: MockClient((_) async => http.Response(jsonEncode({'registered': false}), 200)),
+        client: MockClient(
+          (_) async => http.Response(jsonEncode({'registered': false}), 200),
+        ),
       );
 
       expect(await serviceTrue.isRegistered('e1', 't'), isTrue);
@@ -95,20 +117,26 @@ void main() {
     });
 
     test('isRegistered acepta mensaje de error en formato lista', () async {
-      final client = MockClient((_) async => http.Response(
-            jsonEncode({'message': ['primero', 'segundo']}),
-            401,
-            headers: {'content-type': 'application/json'},
-          ));
+      final client = MockClient(
+        (_) async => http.Response(
+          jsonEncode({
+            'message': ['primero', 'segundo'],
+          }),
+          401,
+          headers: {'content-type': 'application/json'},
+        ),
+      );
       final service = EventService(client: client);
 
       await expectLater(
         service.isRegistered('e1', 't'),
-        throwsA(isA<Exception>().having(
-          (e) => e.toString(),
-          'mensaje',
-          allOf(contains('primero'), contains('segundo')),
-        )),
+        throwsA(
+          isA<Exception>().having(
+            (e) => e.toString(),
+            'mensaje',
+            allOf(contains('primero'), contains('segundo')),
+          ),
+        ),
       );
     });
 
@@ -118,23 +146,30 @@ void main() {
 
       await expectLater(
         service.isRegistered('e1', 't'),
-        throwsA(isA<Exception>().having(
-          (e) => e.toString(),
-          'mensaje',
-          contains('Error HTTP 503'),
-        )),
+        throwsA(
+          isA<Exception>().having(
+            (e) => e.toString(),
+            'mensaje',
+            contains('Error HTTP 503'),
+          ),
+        ),
       );
     });
 
-    test('isRegistered con tipo inesperado en registered lanza TypeError', () async {
-      final client = MockClient(
-        (_) async => http.Response(jsonEncode({'registered': 'si'}), 200),
-      );
-      final service = EventService(client: client);
+    test(
+      'isRegistered con tipo inesperado en registered lanza FormatException',
+      () async {
+        final client = MockClient(
+          (_) async => http.Response(jsonEncode({'registered': 'si'}), 200),
+        );
+        final service = EventService(client: client);
 
-      // Defecto documentado: no se valida el tipo antes del cast `as bool?`.
-      await expectLater(service.isRegistered('e1', 't'), throwsA(isA<TypeError>()));
-    });
+        await expectLater(
+          service.isRegistered('e1', 't'),
+          throwsA(isA<FormatException>()),
+        );
+      },
+    );
 
     test('registerForEvent acepta 201 sin cuerpo', () async {
       final client = MockClient((_) async => http.Response('', 201));
@@ -143,30 +178,37 @@ void main() {
       await expectLater(service.registerForEvent('e1', 't'), completes);
     });
 
-    test('registerForEvent traduce 409 a Exception con el mensaje del backend', () async {
-      final client = MockClient((_) async => http.Response(
+    test(
+      'registerForEvent traduce 409 a Exception con el mensaje del backend',
+      () async {
+        final client = MockClient(
+          (_) async => http.Response(
             jsonEncode({'message': 'Ya estás inscrito en este evento'}),
             409,
             headers: {'content-type': 'application/json'},
-          ));
-      final service = EventService(client: client);
+          ),
+        );
+        final service = EventService(client: client);
 
-      await expectLater(
-        service.registerForEvent('e1', 't'),
-        throwsA(isA<Exception>().having(
-          (e) => e.toString(),
-          'mensaje',
-          contains('Ya estás inscrito'),
-        )),
-      );
-    });
+        await expectLater(
+          service.registerForEvent('e1', 't'),
+          throwsA(
+            isA<Exception>().having(
+              (e) => e.toString(),
+              'mensaje',
+              contains('Ya estás inscrito'),
+            ),
+          ),
+        );
+      },
+    );
   });
 
   group('EventProvider - estados y clasificación de errores', () {
     test('carga exitosa cambia a loaded y notifica', () async {
-      final service = _FakeEventService(() async => [
-            UpcomingEvent.fromJson(_eventJson),
-          ]);
+      final service = _FakeEventService(
+        () async => [UpcomingEvent.fromJson(_eventJson)],
+      );
       final provider = EventProvider(eventService: service);
       var notifications = 0;
       provider.addListener(() => notifications++);
@@ -255,7 +297,10 @@ void main() {
     });
 
     test('fecha inválida se conserva sin lanzar excepción', () {
-      final event = UpcomingEvent.fromJson({..._eventJson, 'date': '32/13/2026'});
+      final event = UpcomingEvent.fromJson({
+        ..._eventJson,
+        'date': '32/13/2026',
+      });
       expect(event.date, '32/13/2026');
     });
 
@@ -286,13 +331,26 @@ void main() {
   });
 
   group('MobileAuthService - excepciones y validación de token', () {
-    test('respuesta 502 con HTML lanza FormatException antes de validar el código', () async {
-      final client = MockClient((_) async => http.Response('<html>Bad Gateway</html>', 502));
-      final service = MobileAuthService(client: client);
+    test(
+      'respuesta 502 con HTML informa el código sin fallar al parsear JSON',
+      () async {
+        final client = MockClient(
+          (_) async => http.Response('<html>Bad Gateway</html>', 502),
+        );
+        final service = MobileAuthService(client: client);
 
-      // Defecto documentado: decodifica el cuerpo antes de comprobar statusCode.
-      await expectLater(service.loginWithQr('code'), throwsA(isA<FormatException>()));
-    });
+        await expectLater(
+          service.loginWithQr('code'),
+          throwsA(
+            isA<Exception>().having(
+              (error) => error.toString(),
+              'mensaje',
+              contains('HTTP 502'),
+            ),
+          ),
+        );
+      },
+    );
 
     test('200 sin accessToken lanza Exception controlada', () async {
       final client = MockClient(
@@ -302,45 +360,55 @@ void main() {
 
       await expectLater(
         service.loginWithQr('code'),
-        throwsA(isA<Exception>().having(
-          (e) => e.toString(),
-          'mensaje',
-          contains('no contiene un token'),
-        )),
+        throwsA(
+          isA<Exception>().having(
+            (e) => e.toString(),
+            'mensaje',
+            contains('no contiene un token'),
+          ),
+        ),
       );
     });
 
-    test('401 con message lista usa el mensaje genérico', () async {
-      final client = MockClient((_) async => http.Response(
-            jsonEncode({'message': ['a', 'b']}),
-            401,
-          ));
+    test('401 con message lista conserva los detalles del servidor', () async {
+      final client = MockClient(
+        (_) async => http.Response(
+          jsonEncode({
+            'message': ['a', 'b'],
+          }),
+          401,
+        ),
+      );
       final service = MobileAuthService(client: client);
 
       await expectLater(
         service.loginWithQr('code'),
-        throwsA(isA<Exception>().having(
-          (e) => e.toString(),
-          'mensaje',
-          contains('No se pudo iniciar sesión'),
-        )),
+        throwsA(
+          isA<Exception>().having(
+            (e) => e.toString(),
+            'mensaje',
+            allOf(contains('a'), contains('b')),
+          ),
+        ),
       );
     });
 
     test('401 con message string expone el mensaje del backend', () async {
-      final client = MockClient((_) async => http.Response(
-            jsonEncode({'message': 'El código QR expiró'}),
-            401,
-          ));
+      final client = MockClient(
+        (_) async =>
+            http.Response(jsonEncode({'message': 'El código QR expiró'}), 401),
+      );
       final service = MobileAuthService(client: client);
 
       await expectLater(
         service.loginWithQr('code'),
-        throwsA(isA<Exception>().having(
-          (e) => e.toString(),
-          'mensaje',
-          contains('El código QR expiró'),
-        )),
+        throwsA(
+          isA<Exception>().having(
+            (e) => e.toString(),
+            'mensaje',
+            contains('El código QR expiró'),
+          ),
+        ),
       );
     });
   });

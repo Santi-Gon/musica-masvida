@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../models/upcoming_event.dart';
 import '../providers/event_provider.dart';
+import '../services/event_service.dart';
 import '../../../core/theme/app_theme.dart';
 
 /// Pantalla de detalle de un evento.
@@ -41,7 +42,8 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
     } catch (error) {
       if (mounted) {
         setState(() {
-          _isRegistered = false;
+          // No asumir "no inscrito" ante un fallo de red/servidor.
+          _isRegistered = null;
           _registrationError = error.toString().replaceFirst('Exception: ', '');
         });
       }
@@ -64,8 +66,14 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
     } catch (error) {
       if (mounted) {
         setState(() {
-          _registrationError =
-              error.toString().replaceFirst('Exception: ', '');
+          if (error is AlreadyRegisteredException) {
+            // El servidor ya tenía la inscripción; mostrar estado confirmado.
+            _isRegistered = true;
+            _registrationError = null;
+          } else {
+            _registrationError =
+                error.toString().replaceFirst('Exception: ', '');
+          }
         });
       }
     } finally {

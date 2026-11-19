@@ -1,6 +1,6 @@
 import {
   Controller, Get, Post, Put, Delete, Body, Param,
-  HttpCode, HttpStatus, UseGuards, Req,
+  HttpCode, HttpStatus, UseGuards, Req, Headers,
 } from '@nestjs/common';
 import { EventsService } from './events.service';
 import { CreateEventDto } from './dto/create-event.dto';
@@ -30,6 +30,13 @@ export class EventsController {
     return this.eventsService.findAllAdmin();
   }
 
+  /** Métricas internas de la caché de lectura (Práctica 12). */
+  @Get('cache/stats')
+  @UseGuards(JwtAuthGuard)
+  cacheStats() {
+    return this.eventsService.cacheStats();
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.eventsService.findOne(id);
@@ -44,8 +51,12 @@ export class EventsController {
   @Post(':id/register')
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.CREATED)
-  register(@Param('id') id: string, @Req() req: any) {
-    return this.eventsService.register(id, req.user.id, req.user.role);
+  register(
+    @Param('id') id: string,
+    @Req() req: any,
+    @Headers('idempotency-key') idempotencyKey?: string,
+  ) {
+    return this.eventsService.register(id, req.user.id, req.user.role, idempotencyKey);
   }
 
   @Get('admin/:id/registrations')

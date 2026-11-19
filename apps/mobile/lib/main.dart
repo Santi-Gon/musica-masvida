@@ -7,6 +7,12 @@ import 'features/splash/screens/splash_screen.dart';
 import 'features/events/screens/home_screen.dart';
 import 'features/events/providers/event_provider.dart';
 
+/// Token opcional para sesiones de perfilado y pruebas E2E.
+///
+/// En producción queda vacío y la app exige el inicio de sesión normal por QR.
+/// Se inyecta con `--dart-define=AUTH_TOKEN=...` solo en entornos de medición.
+const String _profileToken = String.fromEnvironment('AUTH_TOKEN');
+
 void main() {
   runApp(const MusicaMasVidaApp());
 }
@@ -22,7 +28,11 @@ class MusicaMasVidaApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => EventProvider()),
-        ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(
+          create: (_) => AuthProvider(
+            initialToken: _profileToken.isEmpty ? null : _profileToken,
+          ),
+        ),
       ],
       child: MaterialApp(
         title: 'Música Más Vida',
