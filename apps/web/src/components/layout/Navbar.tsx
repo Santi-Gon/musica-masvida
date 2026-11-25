@@ -16,6 +16,7 @@ const NAV_LINKS = [
 export function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [accessToken, setAccessToken] = useState(() => localStorage.getItem('accessToken'));
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -28,10 +29,18 @@ export function Navbar() {
   // Close mobile menu on route change
   useEffect(() => {
     setIsMobileOpen(false);
+    setAccessToken(localStorage.getItem('accessToken'));
   }, [location.pathname]);
 
   const isActive = (path: string) => location.pathname === path;
-  const isLoggedIn = !!localStorage.getItem('accessToken');
+  const isLoggedIn = !!accessToken;
+
+  const handleLogout = () => {
+    localStorage.removeItem('accessToken');
+    setAccessToken(null);
+    setIsMobileOpen(false);
+    navigate('/');
+  };
 
   return (
     <>
@@ -61,9 +70,14 @@ export function Navbar() {
           {/* Actions */}
           <div className="navbar__actions">
             {isLoggedIn ? (
-              <button className="btn-primary" onClick={() => navigate('/dashboard')}>
-                Dashboard
-              </button>
+              <>
+                <button className="btn-primary" onClick={() => navigate('/dashboard')}>
+                  Dashboard
+                </button>
+                <button className="btn-ghost" onClick={handleLogout}>
+                  Cerrar Sesión
+                </button>
+              </>
             ) : (
               <>
                 <button className="btn-ghost" onClick={() => navigate('/login')}>
@@ -115,9 +129,14 @@ export function Navbar() {
             </div>
             <div className="mobile-menu__actions">
               {isLoggedIn ? (
-                <button className="btn-primary" style={{ width: '100%' }} onClick={() => navigate('/dashboard')}>
-                  Dashboard
-                </button>
+                <>
+                  <button className="btn-primary" style={{ width: '100%' }} onClick={() => navigate('/dashboard')}>
+                    Dashboard
+                  </button>
+                  <button className="btn-secondary" style={{ width: '100%' }} onClick={handleLogout}>
+                    Cerrar Sesión
+                  </button>
+                </>
               ) : (
                 <>
                   <button className="btn-secondary" style={{ width: '100%' }} onClick={() => navigate('/login')}>

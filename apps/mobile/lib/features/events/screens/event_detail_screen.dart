@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:add_2_calendar/add_2_calendar.dart' as calendar;
 import 'package:provider/provider.dart';
+
 import '../../auth/providers/auth_provider.dart';
 import '../models/upcoming_event.dart';
 import '../providers/event_provider.dart';
@@ -22,12 +24,15 @@ class EventDetailScreen extends StatefulWidget {
 class _EventDetailScreenState extends State<EventDetailScreen> {
   bool? _isRegistered;
   bool _isRegistering = false;
+  bool _isAddingToCalendar = false;
   String? _registrationError;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _loadRegistrationStatus());
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => _loadRegistrationStatus(),
+    );
   }
 
   Future<void> _loadRegistrationStatus() async {
@@ -35,9 +40,10 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
     if (token == null) return;
 
     try {
-      final registered = await context
-          .read<EventProvider>()
-          .isRegistered(widget.event.id, token);
+      final registered = await context.read<EventProvider>().isRegistered(
+        widget.event.id,
+        token,
+      );
       if (mounted) setState(() => _isRegistered = registered);
     } catch (error) {
       if (mounted) {
@@ -59,9 +65,10 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
       _registrationError = null;
     });
     try {
-      await context
-          .read<EventProvider>()
-          .registerForEvent(widget.event.id, token);
+      await context.read<EventProvider>().registerForEvent(
+        widget.event.id,
+        token,
+      );
       if (mounted) setState(() => _isRegistered = true);
     } catch (error) {
       if (mounted) {
@@ -71,13 +78,96 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
             _isRegistered = true;
             _registrationError = null;
           } else {
-            _registrationError =
-                error.toString().replaceFirst('Exception: ', '');
+            _registrationError = error.toString().replaceFirst(
+              'Exception: ',
+              '',
+            );
           }
         });
       }
     } finally {
       if (mounted) setState(() => _isRegistering = false);
+    }
+  }
+
+  DateTime _eventStartDate() {
+    final dateParts = widget.event.date.split('/');
+    if (dateParts.length != 3) {
+      throw const FormatException(
+        'La fecha del evento no tiene un formato válido.',
+      );
+    }
+
+    final day = int.tryParse(dateParts[0]);
+    final month = int.tryParse(dateParts[1]);
+    final year = int.tryParse(dateParts[2]);
+    if (day == null || month == null || year == null) {
+      throw const FormatException(
+        'La fecha del evento no tiene un formato válido.',
+      );
+    }
+
+    final timeMatch = RegExp(r'^(\d{1,2}):(\d{2})\s*([AaPp][Mm])?$')
+        .firstMatch(widget.event.time.trim());
+    if (timeMatch == null) {
+      throw const FormatException(
+        'La hora del evento no tiene un formato válido.',
+      );
+    }
+
+    var hour = int.parse(timeMatch.group(1)!);
+    final minute = int.parse(timeMatch.group(2)!);
+    final meridiem = timeMatch.group(3)?.toUpperCase();
+    if (minute > 59 ||
+        (meridiem == null ? hour > 23 : (hour < 1 || hour > 12))) {
+      throw const FormatException(
+        'La hora del evento no tiene un formato válido.',
+      );
+    }
+    if (meridiem != null) {
+      if (meridiem == 'PM' && hour != 12) hour += 12;
+      if (meridiem == 'AM' && hour == 12) hour = 0;
+    }
+
+    final start = DateTime(year, month, day, hour, minute);
+    if (start.year != year || start.month != month || start.day != day) {
+      throw const FormatException('La fecha del evento no existe.');
+    }
+    return start;
+  }
+
+  Future<void> _addToCalendar() async {
+    if (_isAddingToCalendar) return;
+    setState(() => _isAddingToCalendar = true);
+    try {
+      final startDate = _eventStartDate();
+      final event = calendar.Event(
+        title: widget.event.title,
+        description: widget.event.description,
+        location: widget.event.location,
+        startDate: startDate,
+        endDate: startDate.add(const Duration(hours: 1)),
+      );
+      final added = await calendar.Add2Calendar.addEvent2Cal(event);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            added
+                ? 'Evento agregado al calendario.'
+                : 'No se agregó el evento al calendario.',
+          ),
+        ),
+      );
+    } catch (error) {
+      if (!mounted) return;
+      final message = error is FormatException
+          ? error.message
+          : 'No se pudo abrir el calendario. Intenta de nuevo.';
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(message)));
+    } finally {
+      if (mounted) setState(() => _isAddingToCalendar = false);
     }
   }
 
@@ -122,10 +212,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                     decoration: BoxDecoration(
                       color: AppTheme.cardDark,
                       borderRadius: BorderRadius.circular(20),
-                      border: Border.all(
-                        color: AppTheme.dividerDark,
-                        width: 1,
-                      ),
+                      border: Border.all(color: AppTheme.dividerDark, width: 1),
                     ),
                     child: Column(
                       children: [
@@ -193,11 +280,39 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                         _isRegistering
                             ? 'Inscribiendo...'
                             : _isRegistered == true
-                                ? 'Ya estás inscrito'
-                                : 'Inscribirme al evento',
+                            ? 'Ya estás inscrito'
+                            : 'Inscribirme al evento',
                       ),
                     ),
                   ),
+                  if (_isRegistered == true) ...[
+                    const SizedBox(height: 12),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        onPressed: _isAddingToCalendar ? null : _addToCalendar,
+                        icon: _isAddingToCalendar
+                            ? const SizedBox(
+                                width: 18,
+                                height: 18,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                              )
+                            : const Icon(Icons.calendar_month_rounded),
+                        label: Text(
+                          _isAddingToCalendar
+                              ? 'Abriendo calendario...'
+                              : '📅 Agregar al Calendario',
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppTheme.cardDark,
+                          foregroundColor: AppTheme.primaryGold,
+                          side: const BorderSide(color: AppTheme.primaryGold),
+                        ),
+                      ),
+                    ),
+                  ],
                   if (_registrationError != null) ...[
                     const SizedBox(height: 12),
                     Center(

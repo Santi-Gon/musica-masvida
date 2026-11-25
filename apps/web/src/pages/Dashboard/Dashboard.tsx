@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
+import { useNavigate } from 'react-router-dom';
 
 const API_BASE = `${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/api/v1`;
 
 export const Dashboard = () => {
+  const navigate = useNavigate();
   const [pin, setPin] = useState<string | null>(null);
   const [expiresAt, setExpiresAt] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -12,6 +14,12 @@ export const Dashboard = () => {
   const [token, setToken] = useState<string | null>(localStorage.getItem('accessToken'));
   const [qrCode, setQrCode] = useState<string | null>(null);
   const [qrExpiresAt, setQrExpiresAt] = useState<string | null>(null);
+
+  const handleLogout = () => {
+    localStorage.removeItem('accessToken');
+    setToken(null);
+    navigate('/');
+  };
 
   // Para pruebas: configurar usuario mock
   const handleSetupUser = async () => {
@@ -83,12 +91,18 @@ export const Dashboard = () => {
 
   return (
     <div style={{ padding: '2rem', maxWidth: '800px', margin: '0 auto', fontFamily: 'sans-serif' }}>
-      <h1>Dashboard del Alumno</h1>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem', flexWrap: 'wrap', marginBottom: '1rem' }}>
+        <h1>Dashboard del Alumno</h1>
+        {token && <button className="btn-secondary" onClick={handleLogout}>Cerrar Sesión</button>}
+      </div>
       
       {!token ? (
         <div style={{ padding: '1rem', border: '1px solid #ccc', borderRadius: '8px', marginBottom: '1rem' }}>
           <h2>Paso 1: Iniciar Sesión (Mock)</h2>
           <p>Para esta práctica, haz clic aquí para crear e iniciar sesión con un usuario de prueba.</p>
+          <button className="btn-secondary" onClick={() => navigate('/login')} style={{ marginBottom: '1rem' }}>
+            Iniciar Sesión
+          </button>
           <button onClick={handleSetupUser} disabled={loading} style={{ padding: '0.5rem 1rem', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
             {loading ? 'Cargando...' : 'Crear Usuario de Prueba'}
           </button>

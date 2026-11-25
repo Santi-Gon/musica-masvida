@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
+import '../../support/screens/support_chatbot_sheet.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../providers/event_provider.dart';
 import '../models/upcoming_event.dart';
@@ -37,6 +39,20 @@ class _HomeScreenState extends State<HomeScreen> {
         title: const Text('Próximos Eventos'),
         actions: [
           IconButton(
+            icon: const Icon(Icons.support_agent_rounded),
+            tooltip: 'Soporte',
+            onPressed: () => showModalBottomSheet<void>(
+              context: context,
+              isScrollControlled: true,
+              useSafeArea: true,
+              backgroundColor: AppTheme.surfaceDark,
+              shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+              ),
+              builder: (_) => const SupportChatbotSheet(),
+            ),
+          ),
+          IconButton(
             icon: const Icon(Icons.refresh_rounded),
             tooltip: 'Refrescar',
             onPressed: () => context.read<EventProvider>().refresh(),
@@ -46,7 +62,8 @@ class _HomeScreenState extends State<HomeScreen> {
             tooltip: 'Cerrar sesión',
             onPressed: () {
               context.read<AuthProvider>().logout();
-              Navigator.of(context).pushNamedAndRemoveUntil('/login', (_) => false);
+              Navigator.of(context)
+                  .pushNamedAndRemoveUntil('/login', (_) => false);
             },
           ),
         ],
@@ -56,9 +73,10 @@ class _HomeScreenState extends State<HomeScreen> {
           return switch (provider.status) {
             EventStatus.initial || EventStatus.loading => _buildLoading(),
             EventStatus.error => _buildError(provider),
-            EventStatus.loaded => provider.events.isEmpty
-                ? _buildEmpty()
-                : _buildEventList(provider.events),
+            EventStatus.loaded =>
+              provider.events.isEmpty
+                  ? _buildEmpty()
+                  : _buildEventList(provider.events),
           };
         },
       ),
@@ -78,10 +96,7 @@ class _HomeScreenState extends State<HomeScreen> {
           SizedBox(height: 16),
           Text(
             'Cargando eventos...',
-            style: TextStyle(
-              color: AppTheme.textSecondary,
-              fontSize: 14,
-            ),
+            style: TextStyle(color: AppTheme.textSecondary, fontSize: 14),
           ),
         ],
       ),
@@ -135,11 +150,7 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            Icons.event_busy_rounded,
-            color: AppTheme.textMuted,
-            size: 56,
-          ),
+          Icon(Icons.event_busy_rounded, color: AppTheme.textMuted, size: 56),
           SizedBox(height: 16),
           Text(
             'No hay eventos próximos',
@@ -169,11 +180,9 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _navigateToDetail(UpcomingEvent event) {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => EventDetailScreen(event: event),
-      ),
-    );
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (_) => EventDetailScreen(event: event)));
   }
 }
 
@@ -202,10 +211,7 @@ class _EventCard extends StatelessWidget {
           child: Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: AppTheme.dividerDark,
-                width: 1,
-              ),
+              border: Border.all(color: AppTheme.dividerDark, width: 1),
             ),
             child: Padding(
               padding: const EdgeInsets.all(18),
@@ -307,8 +313,18 @@ class _DateBadge extends StatelessWidget {
 
   String _monthAbbr(String monthStr) {
     const months = [
-      'ENE', 'FEB', 'MAR', 'ABR', 'MAY', 'JUN',
-      'JUL', 'AGO', 'SEP', 'OCT', 'NOV', 'DIC',
+      'ENE',
+      'FEB',
+      'MAR',
+      'ABR',
+      'MAY',
+      'JUN',
+      'JUL',
+      'AGO',
+      'SEP',
+      'OCT',
+      'NOV',
+      'DIC',
     ];
     final idx = int.tryParse(monthStr);
     if (idx == null || idx < 1 || idx > 12) return '---';
@@ -330,10 +346,7 @@ class _InfoRow extends StatelessWidget {
         Expanded(
           child: Text(
             text,
-            style: const TextStyle(
-              color: AppTheme.textSecondary,
-              fontSize: 13,
-            ),
+            style: const TextStyle(color: AppTheme.textSecondary, fontSize: 13),
             overflow: TextOverflow.ellipsis,
           ),
         ),

@@ -73,3 +73,36 @@ export const pricingApi = {
   update:  (id: string, data: Partial<PricingPlan>) => request<PricingPlan>(`/pricing/${id}`, { method:'PUT', body: JSON.stringify(data) }),
   remove:  (id: string) => request<void>(`/pricing/${id}`, { method:'DELETE' }),
 };
+
+// Support tickets
+export type TicketCategory = 'APP_ERROR' | 'LOGIN_ISSUE' | 'EVENT_REGISTRATION' | 'OTRO';
+export type TicketPriority = 'BAJA' | 'MEDIA' | 'ALTA' | 'CRITICA';
+export type TicketStatus = 'PENDIENTE' | 'EN_PROCESO' | 'EN_REVISION' | 'TERMINADO';
+
+export interface SupportTicket {
+  id: string;
+  title: string;
+  description: string;
+  category: TicketCategory;
+  priority: TicketPriority;
+  status: TicketStatus;
+  deviceInfo: string | null;
+  userId: string;
+  createdAt: string;
+  updatedAt: string;
+  user: { id: string; name: string; email: string };
+}
+
+export const ticketsApi = {
+  getAll: () => request<SupportTicket[]>('/tickets/admin'),
+  updateStatus: (id: string, status: TicketStatus) =>
+    request<SupportTicket>(`/tickets/admin/${encodeURIComponent(id)}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ status }),
+    }),
+  updatePriority: (id: string, priority: TicketPriority) =>
+    request<SupportTicket>(`/tickets/admin/${encodeURIComponent(id)}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ priority }),
+    }),
+};

@@ -16,6 +16,9 @@ dependencies:
   # HTTP client para peticiones de red a la API REST de NestJS
   http: ^1.2.2
 
+  # Integración con el calendario nativo del dispositivo
+  add_2_calendar: ^3.0.1
+
   # Manejador de estado reactivo
   provider: ^6.1.2
 

@@ -35,3 +35,4 @@ pnpm-debug.log*
 # Archivos temporales de editores
 .~lock.*#
 .env.practica11
+.p12_token

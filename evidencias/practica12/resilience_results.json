@@ -1,11 +1,11 @@
 {
-  "fecha": "2026-11-18T18:32:38.975496",
+  "fecha": "2026-11-25T00:14:02.699275",
   "escenarios": [
     {
       "id": "RES-01",
       "escenario": "API caída total (conexión rechazada)",
       "resultado": "fallo controlado",
-      "deteccionMs": 259.5,
+      "deteccionMs": 223.56,
       "reintentos": 2,
       "mensajeUsuario": "No se pudo conectar al servidor.\nVerifica que la API esté corriendo.",
       "estado": "error"
@@ -14,7 +14,7 @@
       "id": "RES-02",
       "escenario": "Timeout de red persistente",
       "resultado": "timeout controlado",
-      "deteccionMs": 191.18,
+      "deteccionMs": 220.2,
       "reintentos": 2,
       "mensajeUsuario": "La solicitud tardó demasiado. Intenta de nuevo."
     },
@@ -22,7 +22,7 @@
       "id": "RES-03",
       "escenario": "Respuesta 500 del servidor",
       "resultado": "error controlado",
-      "deteccionMs": 3.94,
+      "deteccionMs": 4.15,
       "peticionesHttp": 1,
       "reintentos": 0
     },
@@ -30,7 +30,7 @@
       "id": "RES-04",
       "escenario": "Un fallo 503 y luego éxito",
       "resultado": "recuperado",
-      "recuperacionMs": 186.02,
+      "recuperacionMs": 133.57,
       "reintentos": 1,
       "eventos": 3
     },
@@ -38,7 +38,7 @@
       "id": "RES-05",
       "escenario": "HTTP 200 con cuerpo no JSON",
       "resultado": "excepción controlada",
-      "deteccionMs": 1.42,
+      "deteccionMs": 1.48,
       "reintentos": 0
     },
     {
@@ -51,7 +51,7 @@
       "id": "RES-07",
       "escenario": "Red caída después de una lectura exitosa",
       "resultado": "sirvió caché",
-      "respuestaMs": 0.2,
+      "respuestaMs": 0.43,
       "peticionesHttp": 1,
       "aciertosCache": 1
     },
@@ -60,7 +60,7 @@
       "escenario": "Fallo total y reconexión",
       "resultado": "recuperado y consistente",
       "estadoTrasFallo": "error",
-      "recuperacionMs": 36.29,
+      "recuperacionMs": 72.69,
       "eventosTrasRecuperar": 3
     },
     {

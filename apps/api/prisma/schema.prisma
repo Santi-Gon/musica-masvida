@@ -151,11 +151,50 @@ model User {
   medicalReminders   MedicalReminder[]
   physicalActivities PhysicalActivity[]
   auditLogs          UserAuditLog[]
+  supportTickets     SupportTicket[]
 
   createdAt      DateTime           @default(now())
   updatedAt      DateTime           @updatedAt
 
   @@map("users")
+}
+
+enum TicketCategory {
+  APP_ERROR
+  LOGIN_ISSUE
+  EVENT_REGISTRATION
+  OTRO
+}
+
+enum TicketPriority {
+  BAJA
+  MEDIA
+  ALTA
+  CRITICA
+}
+
+enum TicketStatus {
+  PENDIENTE
+  EN_PROCESO
+  EN_REVISION
+  TERMINADO
+}
+
+model SupportTicket {
+  id          String         @id @default(uuid())
+  title       String
+  description String
+  category    TicketCategory
+  priority    TicketPriority @default(MEDIA)
+  status      TicketStatus   @default(PENDIENTE)
+  deviceInfo  String?
+  userId      String
+  user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  @@index([userId])
+  @@map("support_tickets")
 }
 
 model EventRegistration {
