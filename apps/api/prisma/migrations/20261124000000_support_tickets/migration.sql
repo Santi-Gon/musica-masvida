@@ -1,8 +1,23 @@
-CREATE TYPE "TicketCategory" AS ENUM ('APP_ERROR', 'LOGIN_ISSUE', 'EVENT_REGISTRATION', 'OTRO');
-CREATE TYPE "TicketPriority" AS ENUM ('BAJA', 'MEDIA', 'ALTA', 'CRITICA');
-CREATE TYPE "TicketStatus" AS ENUM ('PENDIENTE', 'EN_PROCESO', 'EN_REVISION', 'TERMINADO');
+-- Safe idempotent migration for Support Tickets
+DO $$ BEGIN
+    CREATE TYPE "TicketCategory" AS ENUM ('APP_ERROR', 'LOGIN_ISSUE', 'EVENT_REGISTRATION', 'OTRO');
+EXCEPTION
+    WHEN duplicate_object THEN null;
+END $$;
 
-CREATE TABLE "support_tickets" (
+DO $$ BEGIN
+    CREATE TYPE "TicketPriority" AS ENUM ('BAJA', 'MEDIA', 'ALTA', 'CRITICA');
+EXCEPTION
+    WHEN duplicate_object THEN null;
+END $$;
+
+DO $$ BEGIN
+    CREATE TYPE "TicketStatus" AS ENUM ('PENDIENTE', 'EN_PROCESO', 'EN_REVISION', 'TERMINADO');
+EXCEPTION
+    WHEN duplicate_object THEN null;
+END $$;
+
+CREATE TABLE IF NOT EXISTS "support_tickets" (
     "id" TEXT NOT NULL,
     "title" TEXT NOT NULL,
     "description" TEXT NOT NULL,
@@ -17,8 +32,12 @@ CREATE TABLE "support_tickets" (
     CONSTRAINT "support_tickets_pkey" PRIMARY KEY ("id")
 );
 
-CREATE INDEX "support_tickets_userId_idx" ON "support_tickets"("userId");
+CREATE INDEX IF NOT EXISTS "support_tickets_userId_idx" ON "support_tickets"("userId");
 
-ALTER TABLE "support_tickets"
-ADD CONSTRAINT "support_tickets_userId_fkey"
-FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+DO $$ BEGIN
+    ALTER TABLE "support_tickets"
+    ADD CONSTRAINT "support_tickets_userId_fkey"
+    FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+EXCEPTION
+    WHEN duplicate_object THEN null;
+END $$;

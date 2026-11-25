@@ -12,7 +12,7 @@
     "dev": "nest start --watch",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
-    "start:prod": "prisma migrate deploy && node dist/src/main",
+    "start:prod": "(prisma migrate resolve --applied 20261124000000_support_tickets || true) && prisma migrate deploy && node dist/src/main",
     "postinstall": "prisma generate",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "jest",
