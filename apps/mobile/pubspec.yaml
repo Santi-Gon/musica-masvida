@@ -1,0 +1,34 @@
+name: musica_masvida_mobile
+description: "Música Más Vida Mobile - Aplicación móvil para la escuela de música."
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.13.5
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.8
+
+  # HTTP client para peticiones de red a la API REST de NestJS
+  http: ^1.2.2
+
+  # Integración con el calendario nativo del dispositivo
+  add_2_calendar: ^3.0.1
+
+  # Manejador de estado reactivo
+  provider: ^6.1.2
+
+  # Escaneo del QR de inicio de sesión generado desde el portal web.
+  mobile_scanner: ^6.0.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true

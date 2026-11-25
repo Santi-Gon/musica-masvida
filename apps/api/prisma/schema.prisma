@@ -21,10 +21,13 @@ model Event {
   time        String
   location    String
   imageUrl    String?
+  capacity    Int      @default(50)
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  registrations EventRegistration[]
 
+  @@index([isActive, date])
   @@map("events")
 }
 
@@ -112,6 +115,24 @@ model PushSubscription {
   @@map("push_subscriptions")
 }
 
+// Claves de idempotencia para escrituras críticas (ej. inscripción a eventos).
+// Permite reintentar una operación sin crear duplicados.
+model IdempotencyKey {
+  id          String    @id @default(uuid())
+  key         String    @unique
+  scope       String
+  payloadHash String
+  status      String    // pending | completed
+  httpStatus  Int?
+  response    Json?
+  createdAt   DateTime  @default(now())
+  expiresAt   DateTime
+
+  @@index([expiresAt])
+  @@index([scope, status])
+  @@map("idempotency_keys")
+}
+
 // ========================
 // Modelos para Prácticas 11 y 12 (Smartwatch)
 // ========================
@@ -125,14 +146,81 @@ model User {
   smartwatchPin  String?            // Hash bcrypt del PIN de 6 dígitos
   pinExpiresAt   DateTime?
 
+  eventRegistrations EventRegistration[]
+  mobileLoginChallenges MobileLoginChallenge[]
   medicalReminders   MedicalReminder[]
   physicalActivities PhysicalActivity[]
   auditLogs          UserAuditLog[]
+  supportTickets     SupportTicket[]
 
   createdAt      DateTime           @default(now())
   updatedAt      DateTime           @updatedAt
 
   @@map("users")
+}
+
+enum TicketCategory {
+  APP_ERROR
+  LOGIN_ISSUE
+  EVENT_REGISTRATION
+  OTRO
+}
+
+enum TicketPriority {
+  BAJA
+  MEDIA
+  ALTA
+  CRITICA
+}
+
+enum TicketStatus {
+  PENDIENTE
+  EN_PROCESO
+  EN_REVISION
+  TERMINADO
+}
+
+model SupportTicket {
+  id          String         @id @default(uuid())
+  title       String
+  description String
+  category    TicketCategory
+  priority    TicketPriority @default(MEDIA)
+  status      TicketStatus   @default(PENDIENTE)
+  deviceInfo  String?
+  userId      String
+  user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  @@index([userId])
+  @@map("support_tickets")
+}
+
+model EventRegistration {
+  id        String   @id @default(uuid())
+  eventId   String
+  event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([eventId, userId])
+  @@index([userId])
+  @@map("event_registrations")
+}
+
+model MobileLoginChallenge {
+  id        String    @id @default(uuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  codeHash  String    @unique
+  expiresAt DateTime
+  consumedAt DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId, expiresAt])
+  @@map("mobile_login_challenges")
 }
 
 // Registro de auditoría de cambios administrativos sobre usuarios
@@ -180,4 +268,3 @@ model PhysicalActivity {
 
   @@map("physical_activities")
 }
-

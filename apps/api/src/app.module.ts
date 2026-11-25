@@ -10,6 +10,7 @@ import { InstrumentsModule } from './modules/instruments/instruments.module';
 import { PricingModule } from './modules/pricing/pricing.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { UsersModule } from './modules/users/users.module';
+import { TicketsModule } from './modules/tickets/tickets.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { UsersModule } from './modules/users/users.module';
     PricingModule,
     NotificationsModule,
     UsersModule,
+    TicketsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

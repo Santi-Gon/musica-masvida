@@ -1,0 +1,250 @@
+{
+  "fecha": "2026-11-18T22:28:33.782Z",
+  "host": "ep-blue-pond-be0gqn6l.c-9.us-east-2.aws.neon.tech",
+  "pruebas": {
+    "metadatos": {
+      "version": "PostgreSQL 18.7 (a21afb5) on aarch64-unknown-linux-gnu, compiled by gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0, 64-bit",
+      "db": "neondb",
+      "usuario": "neondb_owner",
+      "ahora": "2026-11-18T22:28:36.183Z"
+    },
+    "indices": [
+      {
+        "tablename": "event_registrations",
+        "indexname": "event_registrations_eventId_userId_key",
+        "indexdef": "CREATE UNIQUE INDEX \"event_registrations_eventId_userId_key\" ON public.event_registrations USING btree (\"eventId\", \"userId\")"
+      },
+      {
+        "tablename": "event_registrations",
+        "indexname": "event_registrations_pkey",
+        "indexdef": "CREATE UNIQUE INDEX event_registrations_pkey ON public.event_registrations USING btree (id)"
+      },
+      {
+        "tablename": "event_registrations",
+        "indexname": "event_registrations_userId_idx",
+        "indexdef": "CREATE INDEX \"event_registrations_userId_idx\" ON public.event_registrations USING btree (\"userId\")"
+      },
+      {
+        "tablename": "events",
+        "indexname": "events_pkey",
+        "indexdef": "CREATE UNIQUE INDEX events_pkey ON public.events USING btree (id)"
+      },
+      {
+        "tablename": "users",
+        "indexname": "users_email_key",
+        "indexdef": "CREATE UNIQUE INDEX users_email_key ON public.users USING btree (email)"
+      },
+      {
+        "tablename": "users",
+        "indexname": "users_pkey",
+        "indexdef": "CREATE UNIQUE INDEX users_pkey ON public.users USING btree (id)"
+      }
+    ],
+    "restricciones": [
+      {
+        "tabla": "event_registrations",
+        "conname": "event_registrations_createdAt_not_null",
+        "definicion": "NOT NULL \"createdAt\""
+      },
+      {
+        "tabla": "event_registrations",
+        "conname": "event_registrations_eventId_fkey",
+        "definicion": "FOREIGN KEY (\"eventId\") REFERENCES events(id) ON UPDATE CASCADE ON DELETE CASCADE"
+      },
+      {
+        "tabla": "event_registrations",
+        "conname": "event_registrations_eventId_not_null",
+        "definicion": "NOT NULL \"eventId\""
+      },
+      {
+        "tabla": "event_registrations",
+        "conname": "event_registrations_id_not_null",
+        "definicion": "NOT NULL id"
+      },
+      {
+        "tabla": "event_registrations",
+        "conname": "event_registrations_pkey",
+        "definicion": "PRIMARY KEY (id)"
+      },
+      {
+        "tabla": "event_registrations",
+        "conname": "event_registrations_userId_fkey",
+        "definicion": "FOREIGN KEY (\"userId\") REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE"
+      },
+      {
+        "tabla": "event_registrations",
+        "conname": "event_registrations_userId_not_null",
+        "definicion": "NOT NULL \"userId\""
+      },
+      {
+        "tabla": "events",
+        "conname": "events_capacity_not_null",
+        "definicion": "NOT NULL capacity"
+      },
+      {
+        "tabla": "events",
+        "conname": "events_createdAt_not_null",
+        "definicion": "NOT NULL \"createdAt\""
+      },
+      {
+        "tabla": "events",
+        "conname": "events_date_not_null",
+        "definicion": "NOT NULL date"
+      },
+      {
+        "tabla": "events",
+        "conname": "events_description_not_null",
+        "definicion": "NOT NULL description"
+      },
+      {
+        "tabla": "events",
+        "conname": "events_id_not_null",
+        "definicion": "NOT NULL id"
+      },
+      {
+        "tabla": "events",
+        "conname": "events_isActive_not_null",
+        "definicion": "NOT NULL \"isActive\""
+      },
+      {
+        "tabla": "events",
+        "conname": "events_location_not_null",
+        "definicion": "NOT NULL location"
+      },
+      {
+        "tabla": "events",
+        "conname": "events_pkey",
+        "definicion": "PRIMARY KEY (id)"
+      },
+      {
+        "tabla": "events",
+        "conname": "events_time_not_null",
+        "definicion": "NOT NULL \"time\""
+      },
+      {
+        "tabla": "events",
+        "conname": "events_title_not_null",
+        "definicion": "NOT NULL title"
+      },
+      {
+        "tabla": "events",
+        "conname": "events_updatedAt_not_null",
+        "definicion": "NOT NULL \"updatedAt\""
+      },
+      {
+        "tabla": "users",
+        "conname": "users_createdAt_not_null",
+        "definicion": "NOT NULL \"createdAt\""
+      },
+      {
+        "tabla": "users",
+        "conname": "users_email_not_null",
+        "definicion": "NOT NULL email"
+      },
+      {
+        "tabla": "users",
+        "conname": "users_id_not_null",
+        "definicion": "NOT NULL id"
+      },
+      {
+        "tabla": "users",
+        "conname": "users_isActive_not_null",
+        "definicion": "NOT NULL \"isActive\""
+      },
+      {
+        "tabla": "users",
+        "conname": "users_name_not_null",
+        "definicion": "NOT NULL name"
+      },
+      {
+        "tabla": "users",
+        "conname": "users_password_not_null",
+        "definicion": "NOT NULL password"
+      },
+      {
+        "tabla": "users",
+        "conname": "users_pkey",
+        "definicion": "PRIMARY KEY (id)"
+      },
+      {
+        "tabla": "users",
+        "conname": "users_updatedAt_not_null",
+        "definicion": "NOT NULL \"updatedAt\""
+      }
+    ],
+    "insert": {
+      "ms": 93.07,
+      "id": "dd7efda7-a6b3-4ef2-8828-7a5cc64d8eba"
+    },
+    "concurrencia_unique": [
+      "OK",
+      "23505"
+    ],
+    "concurrencia_update": {
+      "resultados": [
+        "OK",
+        "OK"
+      ],
+      "tituloFinal": "PRACTICA11-1795040913783-CLIENTE-A"
+    },
+    "tiempos": {
+      "Q1_listar_activos": {
+        "samples": [
+          96.99,
+          104.22,
+          85.38,
+          91.81,
+          90.8
+        ],
+        "min": 85.38,
+        "max": 104.22,
+        "avg": 93.84
+      },
+      "Q2_por_id": {
+        "samples": [
+          97.43,
+          91.46,
+          85.28,
+          85.36,
+          91.19
+        ],
+        "min": 85.28,
+        "max": 97.43,
+        "avg": 90.14
+      },
+      "Q3_contar_inscripciones": {
+        "samples": [
+          89.84,
+          117.31,
+          87.15,
+          89.63,
+          121.71
+        ],
+        "min": 87.15,
+        "max": 121.71,
+        "avg": 101.13
+      },
+      "Q4_admin_con_conteo": {
+        "samples": [
+          104.3,
+          85.14,
+          93.88,
+          88.82,
+          110.56
+        ],
+        "min": 85.14,
+        "max": 110.56,
+        "avg": 96.54
+      }
+    },
+    "explain": {
+      "Q1_listar_activos": "Sort  (cost=19.06..19.46 rows=160 width=221) (actual time=0.018..0.018 rows=1.00 loops=1)\n  Sort Key: date\n  Sort Method: quicksort  Memory: 25kB\n  Buffers: shared hit=1\n  ->  Seq Scan on events  (cost=0.00..13.20 rows=160 width=221) (actual time=0.012..0.013 rows=1.00 loops=1)\n        Filter: \"isActive\"\n        Buffers: shared hit=1\nPlanning Time: 0.052 ms\nExecution Time: 0.039 ms",
+      "Q2_por_id": "Index Scan using events_pkey on events  (cost=0.15..8.17 rows=1 width=221) (actual time=0.017..0.018 rows=1.00 loops=1)\n  Index Cond: (id = 'dd7efda7-a6b3-4ef2-8828-7a5cc64d8eba'::text)\n  Index Searches: 1\n  Buffers: shared hit=2\nPlanning Time: 0.052 ms\nExecution Time: 0.040 ms",
+      "Q3_contar_inscripciones": "Aggregate  (cost=11.29..11.30 rows=1 width=4) (actual time=0.023..0.023 rows=1.00 loops=1)\n  Buffers: shared hit=2\n  ->  Bitmap Heap Scan on event_registrations  (cost=4.17..11.28 rows=3 width=0) (actual time=0.019..0.019 rows=2.00 loops=1)\n        Recheck Cond: (\"eventId\" = 'dd7efda7-a6b3-4ef2-8828-7a5cc64d8eba'::text)\n        Heap Blocks: exact=1\n        Buffers: shared hit=2\n        ->  Bitmap Index Scan on \"event_registrations_eventId_userId_key\"  (cost=0.00..4.17 rows=3 width=0) (actual time=0.011..0.011 rows=3.00 loops=1)\n              Index Cond: (\"eventId\" = 'dd7efda7-a6b3-4ef2-8828-7a5cc64d8eba'::text)\n              Index Searches: 1\n              Buffers: shared hit=1\nPlanning Time: 0.060 ms\nExecution Time: 0.051 ms",
+      "Q4_admin_con_conteo": "Limit  (cost=23.83..589.39 rows=50 width=229) (actual time=0.051..0.052 rows=1.00 loops=1)\n  Buffers: shared hit=3\n  ->  Result  (cost=23.83..3643.43 rows=320 width=229) (actual time=0.050..0.051 rows=1.00 loops=1)\n        Buffers: shared hit=3\n        ->  Sort  (cost=23.83..24.63 rows=320 width=221) (actual time=0.019..0.019 rows=1.00 loops=1)\n              Sort Key: e.\"createdAt\" DESC\n              Sort Method: quicksort  Memory: 25kB\n              Buffers: shared hit=1\n              ->  Seq Scan on events e  (cost=0.00..13.20 rows=320 width=221) (actual time=0.012..0.013 rows=1.00 loops=1)\n                    Buffers: shared hit=1\n        SubPlan 1\n          ->  Aggregate  (cost=11.29..11.30 rows=1 width=8) (actual time=0.029..0.029 rows=1.00 loops=1)\n                Buffers: shared hit=2\n                ->  Bitmap Heap Scan on event_registrations r  (cost=4.17..11.28 rows=3 width=0) (actual time=0.025..0.026 rows=2.00 loops=1)\n                      Recheck Cond: (\"eventId\" = e.id)\n                      Heap Blocks: exact=1\n                      Buffers: shared hit=2\n                      ->  Bitmap Index Scan on \"event_registrations_eventId_userId_key\"  (cost=0.00..4.17 rows=3 width=0) (actual time=0.008..0.008 rows=3.00 loops=1)\n                            Index Cond: (\"eventId\" = e.id)\n                            Index Searches: 1\n                            Buffers: shared hit=1\nPlanning Time: 0.102 ms\nExecution Time: 0.087 ms"
+    }
+  },
+  "errores": [],
+  "pass": 12,
+  "fail": 0
+}

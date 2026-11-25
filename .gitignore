@@ -4,6 +4,7 @@ node_modules/
 # Build outputs
 dist/
 build/
+coverage/
 
 # Environment
 .env
@@ -30,3 +31,8 @@ postgres_data/
 *.log
 npm-debug.log*
 pnpm-debug.log*
+
+# Archivos temporales de editores
+.~lock.*#
+.env.practica11
+.p12_token

@@ -7,6 +7,7 @@ import Events    from './pages/Events/Events';
 import Teachers  from './pages/Teachers/Teachers';
 import Pricing   from './pages/Pricing/Pricing';
 import Users     from './pages/Users/Users';
+import Tickets   from './pages/Tickets/Tickets';
 
 export default function App() {
   return (
@@ -21,6 +22,7 @@ export default function App() {
             <Route path="teachers"  element={<Teachers />} />
             <Route path="pricing"   element={<Pricing />} />
             <Route path="users"     element={<Users />} />
+            <Route path="tickets"   element={<Tickets />} />
           </Route>
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>

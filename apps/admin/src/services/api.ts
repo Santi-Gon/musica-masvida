@@ -31,12 +31,19 @@ export const authApi = {
 // Events
 export interface AdminEvent {
   id: string; title: string; description: string; date: string;
-  time: string; location: string; imageUrl?: string; isActive: boolean; createdAt: string;
+  time: string; location: string; imageUrl?: string; isActive: boolean;
+  capacity: number; createdAt: string; _count: { registrations: number };
+}
+export interface EventRegistrations {
+  event: { id: string; title: string; capacity: number };
+  total: number;
+  registrations: { id: string; createdAt: string; user: { name: string; email: string } }[];
 }
 export const eventsApi = {
   getAll:    () => request<AdminEvent[]>('/events/admin/all'),
   getOne:    (id: string) => request<AdminEvent>(`/events/${id}`),
-  create:    (data: Omit<AdminEvent,'id'|'createdAt'>) => request<AdminEvent>('/events', { method:'POST', body: JSON.stringify(data) }),
+  getRegistrations: (id: string) => request<EventRegistrations>(`/events/admin/${id}/registrations`),
+  create:    (data: Omit<AdminEvent,'id'|'createdAt'|'_count'>) => request<AdminEvent>('/events', { method:'POST', body: JSON.stringify(data) }),
   update:    (id: string, data: Partial<AdminEvent>) => request<AdminEvent>(`/events/${id}`, { method:'PUT', body: JSON.stringify(data) }),
   remove:    (id: string) => request<void>(`/events/${id}`, { method:'DELETE' }),
 };
@@ -65,4 +72,37 @@ export const pricingApi = {
   create:  (data: Omit<PricingPlan,'id'|'createdAt'>) => request<PricingPlan>('/pricing', { method:'POST', body: JSON.stringify(data) }),
   update:  (id: string, data: Partial<PricingPlan>) => request<PricingPlan>(`/pricing/${id}`, { method:'PUT', body: JSON.stringify(data) }),
   remove:  (id: string) => request<void>(`/pricing/${id}`, { method:'DELETE' }),
+};
+
+// Support tickets
+export type TicketCategory = 'APP_ERROR' | 'LOGIN_ISSUE' | 'EVENT_REGISTRATION' | 'OTRO';
+export type TicketPriority = 'BAJA' | 'MEDIA' | 'ALTA' | 'CRITICA';
+export type TicketStatus = 'PENDIENTE' | 'EN_PROCESO' | 'EN_REVISION' | 'TERMINADO';
+
+export interface SupportTicket {
+  id: string;
+  title: string;
+  description: string;
+  category: TicketCategory;
+  priority: TicketPriority;
+  status: TicketStatus;
+  deviceInfo: string | null;
+  userId: string;
+  createdAt: string;
+  updatedAt: string;
+  user: { id: string; name: string; email: string };
+}
+
+export const ticketsApi = {
+  getAll: () => request<SupportTicket[]>('/tickets/admin'),
+  updateStatus: (id: string, status: TicketStatus) =>
+    request<SupportTicket>(`/tickets/admin/${encodeURIComponent(id)}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ status }),
+    }),
+  updatePriority: (id: string, priority: TicketPriority) =>
+    request<SupportTicket>(`/tickets/admin/${encodeURIComponent(id)}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ priority }),
+    }),
 };

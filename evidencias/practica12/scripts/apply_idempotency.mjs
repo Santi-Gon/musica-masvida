@@ -1,0 +1,15 @@
+﻿import fs from 'node:fs';
+import path from 'node:path';
+import { createRequire } from 'node:module';
+import { pathToFileURL } from 'node:url';
+const require = createRequire(pathToFileURL(path.join(process.cwd(), 'apps/api/package.json')).href);
+const pg = require('pg');
+const connectionString = fs.readFileSync(path.join(process.cwd(), '.env.practica11'),'utf8').match(/^DATABASE_URL=(.*)$/m)[1].trim();
+const pool = new pg.Pool({ connectionString, max: 2 });
+const sql = fs.readFileSync(path.join(process.cwd(), 'apps/api/prisma/migrations/20261119000000_idempotency_keys/migration.sql'), 'utf8');
+await pool.query(sql);
+const r = await pool.query(`SELECT table_name FROM information_schema.tables WHERE table_schema='public' AND table_name='idempotency_keys'`);
+const idx = await pool.query(`SELECT indexname FROM pg_indexes WHERE tablename='idempotency_keys' ORDER BY indexname`);
+console.log('tabla idempotency_keys:', r.rowCount === 1 ? 'creada/verificada' : 'AUSENTE');
+console.log('índices:', idx.rows.map(x => x.indexname).join(', '));
+await pool.end();

@@ -7,7 +7,7 @@
     "dev:web": "pnpm --filter web dev",
     "dev:admin": "pnpm --filter admin dev",
     "dev:api": "pnpm --filter api start:dev",
-    "dev": "pnpm run --parallel dev:web dev:admin dev:api",
+    "dev": "pnpm --parallel --filter web --filter admin --filter api run dev",
     "build:web": "pnpm --filter web build",
     "build:admin": "pnpm --filter admin build",
     "build:api": "pnpm --filter api build",

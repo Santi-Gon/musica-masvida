@@ -7,9 +7,15 @@ const navItems = [
   { to: '/teachers', icon: '👨‍🏫', label: 'Maestros' },
   { to: '/pricing',  icon: '💰', label: 'Precios' },
   { to: '/users',    icon: '👤', label: 'Usuarios' },
+  { to: '/tickets',  icon: '🎫', label: 'Tickets' },
 ];
 
-export default function Sidebar() {
+interface SidebarProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
@@ -19,7 +25,7 @@ export default function Sidebar() {
   };
 
   return (
-    <aside className="sidebar">
+    <aside className={`sidebar${isOpen ? ' sidebar--open' : ''}`}>
       <div className="sidebar-logo">
         <div className="sidebar-logo-icon">🎼</div>
         <div className="sidebar-logo-text">
@@ -35,6 +41,7 @@ export default function Sidebar() {
             key={to}
             to={to}
             className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}
+            onClick={onClose}
           >
             <span className="nav-icon">{icon}</span>
             {label}
@@ -52,7 +59,7 @@ export default function Sidebar() {
             <span>{user?.email}</span>
           </div>
         </div>
-        <button id="btn-logout" className="btn-logout" onClick={handleLogout}>
+        <button id="btn-logout" className="btn-logout" onClick={() => { onClose(); handleLogout(); }}>
           🚪 Cerrar sesión
         </button>
       </div>

@@ -1,6 +1,7 @@
 import { Controller, Post, Body, HttpCode, HttpStatus, Get, UseGuards, Req } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
+import { MobileLoginDto } from './dto/mobile-login.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
 @Controller('auth')
@@ -17,6 +18,18 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   async loginUser(@Body() loginDto: LoginDto) {
     return this.authService.loginUser(loginDto);
+  }
+
+  @Post('mobile-qr')
+  @UseGuards(JwtAuthGuard)
+  async generateMobileQr(@Req() req: any) {
+    return this.authService.generateMobileQr(req.user.id, req.user.role);
+  }
+
+  @Post('mobile-login')
+  @HttpCode(HttpStatus.OK)
+  async mobileLogin(@Body() dto: MobileLoginDto) {
+    return this.authService.loginWithMobileQr(dto.code);
   }
 
   @Post('setup')
@@ -58,4 +71,3 @@ export class AuthController {
     return this.authService.smartwatchLogin(body.pin);
   }
 }
-

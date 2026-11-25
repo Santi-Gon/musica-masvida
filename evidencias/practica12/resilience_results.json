@@ -1,0 +1,73 @@
+{
+  "fecha": "2026-11-25T00:14:02.699275",
+  "escenarios": [
+    {
+      "id": "RES-01",
+      "escenario": "API caída total (conexión rechazada)",
+      "resultado": "fallo controlado",
+      "deteccionMs": 223.56,
+      "reintentos": 2,
+      "mensajeUsuario": "No se pudo conectar al servidor.\nVerifica que la API esté corriendo.",
+      "estado": "error"
+    },
+    {
+      "id": "RES-02",
+      "escenario": "Timeout de red persistente",
+      "resultado": "timeout controlado",
+      "deteccionMs": 220.2,
+      "reintentos": 2,
+      "mensajeUsuario": "La solicitud tardó demasiado. Intenta de nuevo."
+    },
+    {
+      "id": "RES-03",
+      "escenario": "Respuesta 500 del servidor",
+      "resultado": "error controlado",
+      "deteccionMs": 4.15,
+      "peticionesHttp": 1,
+      "reintentos": 0
+    },
+    {
+      "id": "RES-04",
+      "escenario": "Un fallo 503 y luego éxito",
+      "resultado": "recuperado",
+      "recuperacionMs": 133.57,
+      "reintentos": 1,
+      "eventos": 3
+    },
+    {
+      "id": "RES-05",
+      "escenario": "HTTP 200 con cuerpo no JSON",
+      "resultado": "excepción controlada",
+      "deteccionMs": 1.48,
+      "reintentos": 0
+    },
+    {
+      "id": "RES-06",
+      "escenario": "Registro duplicado (409)",
+      "resultado": "conflicto clasificado",
+      "mensaje": "Exception: Ya estás inscrito en este evento"
+    },
+    {
+      "id": "RES-07",
+      "escenario": "Red caída después de una lectura exitosa",
+      "resultado": "sirvió caché",
+      "respuestaMs": 0.43,
+      "peticionesHttp": 1,
+      "aciertosCache": 1
+    },
+    {
+      "id": "RES-08",
+      "escenario": "Fallo total y reconexión",
+      "resultado": "recuperado y consistente",
+      "estadoTrasFallo": "error",
+      "recuperacionMs": 72.69,
+      "eventosTrasRecuperar": 3
+    },
+    {
+      "id": "RES-09",
+      "escenario": "Sesión sin token",
+      "resultado": "rechazo correcto",
+      "autenticado": false
+    }
+  ]
+}

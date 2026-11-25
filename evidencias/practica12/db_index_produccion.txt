@@ -1,0 +1,32 @@
+=== ANTES ===
+Limit  (cost=1.03..1.03 rows=2 width=206) (actual time=0.757..0.757 rows=3.00 loops=1)
+  Buffers: shared hit=3 read=1 dirtied=1
+  ->  Sort  (cost=1.03..1.03 rows=2 width=206) (actual time=0.756..0.756 rows=3.00 loops=1)
+        Sort Key: date
+        Sort Method: quicksort  Memory: 25kB
+        Buffers: shared hit=3 read=1 dirtied=1
+        ->  Seq Scan on events  (cost=0.00..1.02 rows=2 width=206) (actual time=0.733..0.734 rows=3.00 loops=1)
+              Filter: "isActive"
+              Buffers: shared read=1 dirtied=1
+Planning:
+  Buffers: shared hit=99 read=10 dirtied=2
+Planning Time: 4.304 ms
+Execution Time: 0.807 ms
+=== ÍNDICES ===
+CREATE INDEX "events_isActive_date_idx" ON public.events USING btree ("isActive", date)
+CREATE UNIQUE INDEX events_pkey ON public.events USING btree (id)
+=== DESPUÉS ===
+Limit  (cost=1.05..1.06 rows=3 width=158) (actual time=0.016..0.017 rows=3.00 loops=1)
+  Buffers: shared hit=1
+  ->  Sort  (cost=1.05..1.06 rows=3 width=158) (actual time=0.016..0.016 rows=3.00 loops=1)
+        Sort Key: date
+        Sort Method: quicksort  Memory: 25kB
+        Buffers: shared hit=1
+        ->  Seq Scan on events  (cost=0.00..1.03 rows=3 width=158) (actual time=0.008..0.009 rows=3.00 loops=1)
+              Filter: "isActive"
+              Buffers: shared hit=1
+Planning:
+  Buffers: shared hit=48 read=1
+Planning Time: 0.259 ms
+Execution Time: 0.038 ms
+Filas: 3

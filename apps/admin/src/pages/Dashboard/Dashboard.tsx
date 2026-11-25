@@ -60,7 +60,7 @@ export default function Dashboard() {
               ))}
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+            <div className="dashboard-grid">
               {/* Próximo evento */}
               <div className="card">
                 <h3 style={{ marginBottom: '1rem', display:'flex', alignItems:'center', gap:'0.5rem' }}>
